@@ -7,7 +7,7 @@ def entrada(tipo_operacao, valor_operacao, descricao_operacao):
     global saldo
     saldo += valor_operacao
     hora = datetime.now().strftime("%H:%M:%S")
-    data = date.now().strftime("%Y-%m-%d")
+    data = datetime.now().strftime("%Y-%m-%d")
     dados = Caixa360(id=0,data=data, hora=hora, valor=saldo, tipo=tipo_operacao, descricao=descricao_operacao)
     inserir_extrato(dados)
     st.success("Operação de entrada gravada com sucesso!")
