@@ -1,4 +1,7 @@
 import streamlit as st
+from repo.caixa360_repo import *
+
+criar_tabela_extrato()
 
 st.set_page_config(layout="centered")
 

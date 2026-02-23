@@ -24,6 +24,6 @@ senha = st.text_input("Senha", type="password")
 
 if st.button("Entrar"):
     if usuario == "admin" and senha == "123":
-        st.switch_page("pages/operacao.py")
+        st.switch_page("pages/menu.py")
     else:
         st.error("Usuário ou senha inválidos")
