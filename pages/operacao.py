@@ -1,6 +1,6 @@
 import streamlit as st
 
-from services.funções import validacao
+from services.funções import *
 
 st.set_page_config(layout="centered")
 
@@ -24,4 +24,6 @@ valor_operacao = st.number_input("Valor da Operação")
 descricao_operacao = st.text_input("Descrição da Operação")
 
 if st.button("Gravar Operação"):
-    validacao(tipo_operacao, valor_operacao, descricao_operacao)
+    if not validacao(tipo_operacao, valor_operacao, descricao_operacao):
+        get_dados(tipo_operacao, valor_operacao, descricao_operacao)
+        

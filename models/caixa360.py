@@ -1,13 +1,11 @@
 from dataclasses import dataclass
-from datetime import date
-from datetime import time
-
+import datetime
 @dataclass
 
 class Caixa360:
     id: int
-    data: date
-    hora: time
+    data: datetime
     valor: float
     tipo: str
     descricao: str
+    saldo: float = 0.0
