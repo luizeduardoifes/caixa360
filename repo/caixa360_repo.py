@@ -23,3 +23,11 @@ def obter_saldo_atual() -> float:
     resultado = cursor.fetchone()
     conn.close()
     return resultado[0] if resultado else 0.0
+
+def banco_esta_vazio():
+    conn = criar_conexao()
+    cursor = conn.cursor()
+    cursor.execute(VAZIO_DADOS_EXTRATO)
+    resultado = cursor.fetchone()
+    conn.close()
+    return resultado[0] == 0

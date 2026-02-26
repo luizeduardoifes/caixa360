@@ -24,6 +24,6 @@ valor_operacao = st.number_input("Valor da Operação")
 descricao_operacao = st.text_input("Descrição da Operação")
 
 if st.button("Gravar Operação"):
-    if not validacao(tipo_operacao, valor_operacao, descricao_operacao):
+    if validacao(tipo_operacao, valor_operacao, descricao_operacao):
         get_dados(tipo_operacao, valor_operacao, descricao_operacao)
         

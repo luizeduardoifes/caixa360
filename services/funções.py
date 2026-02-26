@@ -3,6 +3,7 @@ import streamlit as st
 from models.caixa360 import Caixa360
 from repo.caixa360_repo import *
 
+
 def get_dados(tipo_operacao, valor_operacao, descricao_operacao):
     if tipo_operacao == "Entrada":
         saldo = obter_saldo_atual() + valor_operacao
@@ -21,6 +22,7 @@ def get_dados(tipo_operacao, valor_operacao, descricao_operacao):
 
 def validacao(tipo_operacao, valor_operacao, descricao_operacao):
     erro = []
+    
     if tipo_operacao == "Selecione uma operação":
         erro.append("Selecione um tipo de operação.")
 
@@ -30,7 +32,15 @@ def validacao(tipo_operacao, valor_operacao, descricao_operacao):
     if not descricao_operacao.strip():
         erro.append("A descrição da operação não pode estar vazia.")
 
+    if banco_esta_vazio() and tipo_operacao == "Saída":
+        erro.append("Não é possível registrar uma saída sem um saldo inicial. Por favor, registre uma entrada primeiro.")
+
     if erro:
         for msg in erro:
             st.error(msg)
+        return False
+
+    else:
+        return True
+
 
