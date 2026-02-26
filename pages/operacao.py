@@ -23,7 +23,10 @@ tipo_operacao = st.selectbox("Tipo de Operação", ["Selecione uma operação", 
 valor_operacao = st.number_input("Valor da Operação")
 descricao_operacao = st.text_input("Descrição da Operação")
 
-if st.button("Gravar Operação"):
+if st.button("Gravar Operação", use_container_width=True):
     if validacao(tipo_operacao, valor_operacao, descricao_operacao):
         get_dados(tipo_operacao, valor_operacao, descricao_operacao)
+
+if st.button("Voltar ao Menu Principal", use_container_width=True):
+    st.switch_page("pages/menu.py")
         
