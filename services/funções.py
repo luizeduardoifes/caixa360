@@ -44,3 +44,47 @@ def validacao(tipo_operacao, valor_operacao, descricao_operacao):
         return True
 
 
+import re
+
+def interpretar_comando(texto):
+    
+    texto = texto.lower()
+
+    # detectar valor
+    valor_match = re.search(r"\d+\.?\d*", texto)
+    valor = float(valor_match.group()) if valor_match else None
+
+    # detectar operação
+    entrada_palavras = ["inserir", "adicionar", "depositar", "colocar","coloquei" ,"recebi"]
+    saida_palavras = ["gastei", "retirar", "pagar", "saída", "tirei"]
+
+    operacao = None
+
+    for palavra in entrada_palavras:
+        if palavra in texto:
+            operacao = "entrada"
+
+    for palavra in saida_palavras:
+        if palavra in texto:
+            operacao = "saida"
+
+    # detectar categoria
+    palavras = texto.split()
+
+    categoria = None
+    if "de" in palavras:
+        index = palavras.index("de")
+        if index + 1 < len(palavras):
+            categoria = palavras[index + 1]
+    if "com" in palavras:
+        index = palavras.index("com")
+        if index + 1 < len(palavras):
+            categoria = palavras[index + 1]
+    if "com a" in palavras:
+        index = palavras.index("com a")
+        if index + 1 < len(palavras):
+            categoria = palavras[index + 1]
+
+    st.write(f"Valor: {valor}")
+    st.write(f"Operação: {operacao}")
+    st.write(f"Categoria: {categoria}")
