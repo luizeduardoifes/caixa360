@@ -33,13 +33,12 @@ audio = st.audio_input("Fale algo")
 input_text = st.text_input("Ou digite algo")
 
 if audio:
-     with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
-            f.write(audio.read())
-            caminho_audio = f.name
-            result = model.transcribe(caminho_audio)
-            comando = result["text"]
-
-            interpretar_comando(comando)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
+        f.write(audio.read())
+        caminho_audio = f.name
+        result = model.transcribe(caminho_audio)
+        comando = result["text"]
+        interpretar_comando(comando)
 
 
 
