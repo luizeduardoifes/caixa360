@@ -1,0 +1,10 @@
+openai-whisper
+ffmpeg-python
+torch
+streamlit
+openai-whisper
+torch
+ffmpeg-python
+numpy
+pandas
+ffmpeg  
