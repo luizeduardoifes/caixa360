@@ -55,7 +55,7 @@ def interpretar_comando(texto):
     valor = float(valor_match.group()) if valor_match else None
 
     # detectar operação
-    entrada_palavras = ["inserir", "adicionar", "depositar", "colocar","coloquei" ,"recebi"]
+    entrada_palavras = ["inseri","inserir", "adicionar", "depositar", "colocar","coloquei" ,"recebi"]
     saida_palavras = ["gastei", "retirar", "pagar", "saída", "tirei"]
 
     operacao = None
@@ -78,6 +78,10 @@ def interpretar_comando(texto):
             categoria = palavras[index + 1]
     if "com" in palavras:
         index = palavras.index("com")
+        if index + 1 < len(palavras):
+            categoria = palavras[index + 1]
+    if "no" in palavras:
+        index = palavras.index("no")
         if index + 1 < len(palavras):
             categoria = palavras[index + 1]
     if "com a" in palavras:
