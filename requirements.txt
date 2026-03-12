@@ -1,10 +1,5 @@
-openai-whisper
-ffmpeg-python
-torch
 streamlit
-openai-whisper
-torch
+faster-whisper
+ctranslate2
 ffmpeg-python
 numpy
-pandas
-ffmpeg  

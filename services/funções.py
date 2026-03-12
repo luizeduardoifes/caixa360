@@ -55,8 +55,8 @@ def interpretar_comando(texto):
     valor = float(valor_match.group()) if valor_match else None
 
     # detectar operação
-    entrada_palavras = ["inseri","inserir", "adicionar", "depositar", "colocar","coloquei" ,"recebi"]
-    saida_palavras = ["gastei", "retirar", "pagar", "saída", "tirei"]
+    entrada_palavras = ["adicionei","inseri","inserir", "adicionar", "depositar", "colocar","coloquei" ,"recebi"]
+    saida_palavras = ["retirei","gastei", "retirar", "pagar","paguei", "saída", "tirei"]
 
     operacao = None
 
