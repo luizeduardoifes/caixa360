@@ -7,5 +7,5 @@ class Caixa360:
     data: datetime
     valor: float
     tipo: str
-    descricao: str
+    categoria: str
     saldo: float = 0.0

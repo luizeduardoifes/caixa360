@@ -4,13 +4,13 @@ CREATE TABLE IF NOT EXISTS extrato (
     data DATE NOT NULL,
     valor REAL NOT NULL,
     tipo TEXT NOT NULL,
-    descricao TEXT NOT NULL,
+    categoria TEXT NOT NULL,
     saldo REAL NOT NULL
 );
 '''
 
 INSERT_EXTRATO = '''
-INSERT INTO extrato (data, valor, tipo, descricao, saldo)
+INSERT INTO extrato (data, valor, tipo, categoria, saldo)
 VALUES (?, ?, ?, ?, ?);
 '''
 
