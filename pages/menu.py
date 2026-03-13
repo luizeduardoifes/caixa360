@@ -4,6 +4,8 @@ import tempfile
 import subprocess
 import os
 
+from services.funções import *
+
 st.set_page_config(layout="centered")
 
 
@@ -51,10 +53,10 @@ def converter_para_wav(entrada):
     return saida
 
 
-st.title("Reconhecimento de voz")
+st.title("Caixa360")
 
 
-audio = st.audio_input("Grave um áudio")
+audio = st.audio_input("Comando por áudio")
 
 
 if audio is not None:
@@ -96,5 +98,13 @@ if audio is not None:
 
     if texto:
         st.write(texto)
+        botao = st.button("Processar")
+        if botao:
+            with st.spinner("Processando..."):
+                interpretar_comando(texto)
+
+
     else:
         st.warning("Não foi possível reconhecer o áudio.")
+
+    
