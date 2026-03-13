@@ -1,3 +1,4 @@
+import re
 from datetime import *
 import streamlit as st
 from models.caixa360 import Caixa360
@@ -44,112 +45,56 @@ def validacao(tipo_operacao, valor_operacao, categoria_operacao):
         return True
 
 
-import re
 
 def interpretar_comando(texto):
+
+    texto = texto.lower()
+
     comandos_validos = [
-    "abrir caixa",
-    "fechar caixa",
-    "ver saldo",
-    "consultar saldo",
-    "saldo do caixa",
+        "abrir caixa","fechar caixa","ver saldo","consultar saldo","saldo do caixa",
+        "registrar venda","cancelar venda",
+        "inserir","inseri","inserido","inserir dinheiro","inserir valor",
+        "adicionar","adicionei","adicionar dinheiro","adicionar valor",
+        "retirar","retirei","retirado","retirar dinheiro","retirar valor",
+        "descontar","desconto","descontou","aplicar desconto",
+        "entrada","entrada de dinheiro","entrada no caixa",
+        "saida","saída","saida de dinheiro","saída de dinheiro",
+        "movimentação","ver movimentação","consultar movimentação",
+        "historico","histórico","historico do caixa","histórico do caixa"
+    ]
 
-    "registrar venda",
-    "cancelar venda",
+    comando_encontrado = any(cmd in texto for cmd in comandos_validos)
 
-    "inserir",
-    "inseri",
-    "inserido",
-    "inserir dinheiro",
-    "inserir valor",
-
-    "adicionar",
-    "adicionei",
-    "adicionar dinheiro",
-    "adicionar valor",
-
-    "retirar",
-    "retirei",
-    "retirado",
-    "retirar dinheiro",
-    "retirar valor",
-
-    "descontar",
-    "desconto",
-    "descontou",
-    "aplicar desconto",
-
-    "entrada",
-    "entrada de dinheiro",
-    "entrada no caixa",
-
-    "saida",
-    "saída",
-    "saida de dinheiro",
-    "saída de dinheiro",
-
-    "movimentação",
-    "ver movimentação",
-    "consultar movimentação",
-
-    "historico",
-    "histórico",
-    "historico do caixa",
-    "histórico do caixa"
-]
-    comando_encontrado = None
-    for comando in comandos_validos:
-        if comando in texto:
-            comando_encontrado = comando
-            break
-
-
-    if comando_encontrado:
-        texto = texto.lower()
-
-        # detectar valor
-        valor_match = re.search(r"\d+\.?\d*", texto)
-        valor = float(valor_match.group()) if valor_match else None
-
-        # detectar operação
-        entrada_palavras = ["adicionei","inseri","inserir", "adicionar", "depositar", "colocar","coloquei" ,"recebi"]
-        saida_palavras = ["retirei","gastei", "retirar", "pagar","paguei", "saída", "tirei"]
-
-        operacao = None
-
-        for palavra in entrada_palavras:
-            if palavra in texto:
-                operacao = "entrada"
-
-        for palavra in saida_palavras:
-            if palavra in texto:
-                operacao = "saida"
-
-        # detectar categoria
-        palavras = texto.split()
-
-        categoria = None
-        if "de" in palavras:
-            index = palavras.index("de")
-            if index + 1 < len(palavras):
-                categoria = palavras[index + 1]
-        if "com" in palavras:
-            index = palavras.index("com")
-            if index + 1 < len(palavras):
-                categoria = palavras[index + 1]
-        if "no" in palavras:
-            index = palavras.index("no")
-            if index + 1 < len(palavras):
-                categoria = palavras[index + 1]
-        if "com a" in palavras:
-            index = palavras.index("com a")
-            if index + 1 < len(palavras):
-                categoria = palavras[index + 1]
-
-        st.write(f"Valor: {valor}")
-        st.write(f"Operação: {operacao}")
-        st.write(f"Categoria: {categoria}")
-
-    else:
+    if not comando_encontrado:
         st.warning("Este sistema aceita apenas comandos relacionados ao caixa. Não é um sistema de conversa.")
-       
+        return
+
+    # detectar valor
+    valor_match = re.search(r"\d+\.?\d*", texto)
+    valor = float(valor_match.group()) if valor_match else None
+
+    # detectar operação
+    entrada_palavras = ["adicionei","inseri","inserir","adicionar","depositar","colocar","coloquei","recebi"]
+    saida_palavras = ["retirei","gastei","retirar","pagar","paguei","saída","tirei"]
+
+    operacao = None
+
+    if any(p in texto for p in entrada_palavras):
+        operacao = "entrada"
+
+    elif any(p in texto for p in saida_palavras):
+        operacao = "saida"
+
+    # detectar categoria
+    palavras = texto.split()
+    categoria = None
+
+    for chave in ["de","com","no"]:
+        if chave in palavras:
+            idx = palavras.index(chave)
+            if idx + 1 < len(palavras):
+                categoria = palavras[idx + 1]
+
+    st.write(f"Valor: {valor}")
+    st.write(f"Operação: {operacao}")
+    st.write(f"Categoria: {categoria}")
