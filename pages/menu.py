@@ -19,24 +19,30 @@ if not st.session_state.logado:
         </style>
     """, unsafe_allow_html=True)
 
-st.title("Caixa 360")
 
-
+# carregar modelo apenas uma vez
 @st.cache_resource
 def carregar_modelo():
-    return WhisperModel("base", compute_type="int8")
+    return WhisperModel(
+        "small",          # mais preciso que base
+        compute_type="int8"
+    )
 
 model = carregar_modelo()
 
+
+# converter audio para wav
 def converter_para_wav(entrada):
+
     base = os.path.splitext(entrada)[0]
     saida = base + ".wav"
 
     comando = [
         "ffmpeg",
         "-y",
-        "-i",
-        entrada,
+        "-i", entrada,
+        "-ac", "1",       # mono
+        "-ar", "16000",   # frequência ideal pro whisper
         saida
     ]
 
@@ -44,31 +50,51 @@ def converter_para_wav(entrada):
 
     return saida
 
-audio = st.audio_input("Áudio")
+
+st.title("Reconhecimento de voz")
+
+
+audio = st.audio_input("Grave um áudio")
+
 
 if audio is not None:
 
     audio_bytes = audio.read()
 
-    if len(audio_bytes) == 0:
+    if not audio_bytes:
         st.error("Áudio vazio")
         st.stop()
 
+    # detectar extensão
     tipo = audio.type
     extensao = tipo.split("/")[-1]
 
+    # salvar audio temporário
     with tempfile.NamedTemporaryFile(delete=False, suffix=f".{extensao}") as f:
         f.write(audio_bytes)
         caminho_audio = f.name
 
+    # converter para wav
     caminho_wav = converter_para_wav(caminho_audio)
 
-    segments, info = model.transcribe(caminho_wav)
+    with st.spinner("Reconhecendo voz..."):
 
-    texto = ""
+        segments, info = model.transcribe(
+            caminho_wav,
+            language="pt",        # força português
+            beam_size=5           # melhora precisão
+        )
 
-    for segment in segments:
-        texto += segment.text
+        texto = ""
 
-    st.write("Texto reconhecido:")
-    st.write(texto)
+        for segment in segments:
+            texto += segment.text
+
+        texto = texto.strip()
+
+    st.subheader("Texto reconhecido")
+
+    if texto:
+        st.write(texto)
+    else:
+        st.warning("Não foi possível reconhecer o áudio.")
