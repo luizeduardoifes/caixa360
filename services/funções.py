@@ -146,13 +146,9 @@ def interpretar_comando(texto):
             if index + 1 < len(palavras):
                 categoria = palavras[index + 1]
 
-        if valor == None and operacao == None and categoria == None:
-            st.warning("Este sistema aceita apenas comandos relacionados ao caixa. Não é um sistema de conversa.")
-
-        else:
-            st.write(f"Valor: {valor}")
-            st.write(f"Operação: {operacao}")
-            st.write(f"Categoria: {categoria}")
+        st.write(f"Valor: {valor}")
+        st.write(f"Operação: {operacao}")
+        st.write(f"Categoria: {categoria}")
 
     else:
         st.warning("Este sistema aceita apenas comandos relacionados ao caixa. Não é um sistema de conversa.")
