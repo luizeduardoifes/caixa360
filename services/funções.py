@@ -152,4 +152,4 @@ def interpretar_comando(texto):
 
     else:
         st.warning("Este sistema aceita apenas comandos relacionados ao caixa. Não é um sistema de conversa.")
-        return
+       
