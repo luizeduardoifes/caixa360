@@ -89,7 +89,7 @@ def interpretar_comando(texto):
     palavras = texto.split()
     categoria = None
 
-    for chave in ["de","com","no"]:
+    for chave in ["de","com","no","com o","com a"]:
         if chave in palavras:
             idx = palavras.index(chave)
             if idx + 1 < len(palavras):

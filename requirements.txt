@@ -3,3 +3,6 @@ faster-whisper
 ctranslate2
 ffmpeg-python
 numpy
+pydub
+python-dotenv
+SpeechRecognition
