@@ -8,4 +8,4 @@ class Caixa360:
     valor: float
     tipo: str
     categoria: str
-    saldo: float = 0.0
+    saldo: float

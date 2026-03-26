@@ -33,25 +33,22 @@ def carregar_modelo():
 model = carregar_modelo()
 
 
-# converter audio para wav
 def converter_para_wav(entrada):
-
     base = os.path.splitext(entrada)[0]
-    saida = base + ".wav"
+    saida = base + "_convertido.wav"  # 👈 mudou aqui
 
     comando = [
         "ffmpeg",
         "-y",
         "-i", entrada,
-        "-ac", "1",       # mono
-        "-ar", "16000",   # frequência ideal pro whisper
+        "-ac", "1",
+        "-ar", "16000",
         saida
     ]
 
     subprocess.run(comando)
 
     return saida
-
 
 st.title("Caixa360")
 
