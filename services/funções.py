@@ -10,11 +10,63 @@ def consultar_extrato():
     saldo_atual = obter_saldo_atual()
     if dados:
         st.write("EXTRATO:")
+
         df = pd.DataFrame(dados, columns=["id","data", "valor", "tipo", "categoria", "saldo"])
-        st.dataframe(df, use_container_width=True)
-        st.write(f"Saldo Atual: {saldo_atual}")
+
+        # 🔴 valor negativo para saída
+        df["valor"] = df.apply(
+            lambda row: -row["valor"] if row["tipo"] == "saida" else row["valor"],
+            axis=1
+        )
+
+        # 💰 formatação moeda
+        def formatar_moeda(x):
+            return f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+        df["valor_operação"] = df["valor"].apply(formatar_moeda)
+        df["saldo_formatado"] = df["saldo"].apply(formatar_moeda)
+
+        # 🎨 estilo corrigido
+        def estilo_linha(row):
+            estilos = []
+
+            for col in row.index:
+                if col == "valor_operação":
+                    if row["tipo"] == "entrada":
+                        estilos.append("color: green")
+                    elif row["tipo"] == "saida":
+                        estilos.append("color: red")
+                    else:
+                        estilos.append("")
+
+                elif col == "saldo_formatado":
+                    # 👇 USA saldo original do df (via nome fixo)
+                    saldo_original = df.loc[row.name, "saldo"]
+
+                    if saldo_original >= 0:
+                        estilos.append("color: green")
+                    else:
+                        estilos.append("color: red")
+                else:
+                    estilos.append("")
+
+            return estilos
+
+        st.dataframe(
+            df[["id","data", "valor_operação", "tipo", "categoria", "saldo_formatado"]]
+            .style.apply(estilo_linha, axis=1),
+            use_container_width=True
+        )
+
+        # 💰 saldo atual
+        saldo_formatado = formatar_moeda(saldo_atual)
+
+        if saldo_atual >= 0:
+            st.markdown(f"<h3 style='color:green'>Saldo Atual: {saldo_formatado}</h3>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<h3 style='color:red'>Saldo Atual: {saldo_formatado}</h3>", unsafe_allow_html=True)
     else:
-        st.info("Nenhum registro encontrado.")
+        st.info("Nenhum registro encontrado,faça a primeira operação.")
 
 
 def get_dados(operacao, valor, categoria):
@@ -75,41 +127,131 @@ def validacao(tipo_operacao, valor_operacao, categoria_operacao):
     return True
 
 
-def eh_consulta(texto):
-    consulta_palavras = [
-        "saldo",
-        "extrato",
-        "consulta",
-        "consultar",
-        "analisa",
-        "analisar",
-        "analise",
-        "análise",
-        "extrato"
-    ]
+def eh_consulta(formatado):
+    comandos_consulta = [
+    # 💰 saldo
+    "saldo",
+    "ver saldo",
+    "consultar saldo",
+    "mostrar saldo",
+    "saldo do caixa",
+    "quanto tenho",
+    "quanto tem no caixa",
+    "quanto há",
+    "valor em caixa",
+    "total em caixa",
+    "dinheiro em caixa",
+    "quanto dinheiro tem",
+    "quanto dinheiro eu tenho",
+    "me diga o saldo",
+    "informe o saldo",
+    "ver valor",
+    "consultar valor",
 
-    return any(p in texto for p in consulta_palavras)
+    # 📊 extrato / histórico
+    "extrato",
+    "ver extrato",
+    "consultar extrato",
+    "mostrar extrato",
+    "extrato do caixa",
+    "ver movimentação",
+    "consultar movimentação",
+    "mostrar movimentação",
+    "movimentação do caixa",
+    "historico",
+    "histórico",
+    "ver histórico",
+    "consultar histórico",
+    "mostrar histórico",
+    "historico do caixa",
+    "histórico do caixa",
 
-import re
+    # 📈 análise
+    "analisar",
+    "analisa",
+    "analise",
+    "análise",
+    "analisar caixa",
+    "analise do caixa",
+    "análise do caixa",
+    "analisar movimentação",
+    "analisar extrato",
+    "resumo",
+    "resumo do caixa",
+    "resumo financeiro",
+    "visão geral",
+    "relatorio",
+    "relatório",
+    "relatorio do caixa",
+    "relatório do caixa",
 
-def processar_movimentacao(texto):
-    # 🔍 valor
-    valor_match = re.search(r"\d+\.?\d*", texto)
-    valor = float(valor_match.group()) if valor_match else None
+    # 🧠 linguagem mais natural
+    "como está o caixa",
+    "como está meu saldo",
+    "como está o saldo",
+    "me mostra o caixa",
+    "quero ver o caixa",
+    "me mostra o extrato",
+    "quero ver o extrato",
+    "me mostra as movimentações",
+    "o que foi registrado",
+    "quais foram os lançamentos",
+    "ver registros",
+    "consultar registros",
+]
+
+    return any(p in formatado for p in comandos_consulta)
+
+
+def processar_movimentacao(formatado):
+    # 🔍 valor (suporte completo: 2.500, 3 mil, tres mil)
+
+    valor = None
+
+    # 1. pega "3 mil", "10 mil"
+    match_mil = re.search(r"(\d+)\s*mil", formatado)
+
+    if match_mil:
+        valor = int(match_mil.group(1)) * 1000
+
+    else:
+        # 2. pega "tres mil"
+        numeros_formatado = {
+            "um": 1, "uma": 1, "dois": 2, "duas": 2, "tres": 3, "três": 3,
+            "quatro": 4, "cinco": 5, "seis": 6, "sete": 7, "oito": 8, "nove": 9,
+            "dez": 10
+        }
+
+        palavras = formatado.split()
+
+        for i, palavra in enumerate(palavras):
+            if palavra in numeros_formatado:
+                if i + 1 < len(palavras) and palavras[i + 1] == "mil":
+                    valor = numeros_formatado[palavra] * 1000
+                    break
+
+        # 3. fallback para número normal (2.500,50 etc)
+        if valor is None:
+            valor_match = re.search(r"\d{1,3}(?:\.\d{3})*(?:,\d+)?", formatado)
+
+            if valor_match:
+                valor_str = valor_match.group()
+                valor_str = valor_str.replace(".", "").replace(",", ".")
+                valor = float(valor_str)
 
     # 🔍 operação
     entrada_palavras = ["adicionei","inseri","inserir","adicionar","depositar","colocar","coloquei","recebi","entrada"]
-    saida_palavras = ["retirei","gastei","retirar","pagar","paguei","saída","tirei","saida"]
+    saida_palavras = ["gastou","gastar","retirei","gastei","retirar","pagar","paguei","saída","tirei","saida"]
 
     operacao = None
 
-    if any(p in texto for p in entrada_palavras):
+    if any(p in formatado for p in entrada_palavras):
         operacao = "entrada"
-    elif any(p in texto for p in saida_palavras):
+    elif any(p in formatado for p in saida_palavras):
         operacao = "saida"
 
     # 🔍 categoria
-    palavras = texto.split()
+    palavras = formatado.split()
     categoria = None
 
     for chave in ["de", "com", "no"]:
@@ -134,13 +276,22 @@ def processar_movimentacao(texto):
     get_dados(operacao, valor, categoria)
 
 
-def interpretar_comando(texto):
-    texto = texto.lower()
+def interpretar_comando(formatado):
 
     comandos_validos = [
         
-        "abrir caixa","fechar caixa","ver saldo","consultar saldo","saldo do caixa",
-        "registrar venda","cancelar venda",
+        "abrir caixa","fechar caixa","saldo","ver saldo","consultar saldo","mostrar saldo","saldo do caixa","quanto tenho",
+        "quanto tem no caixa","quanto há","valor em caixa","total em caixa","dinheiro em caixa","quanto dinheiro tem",
+        "quanto dinheiro eu tenho","me diga o saldo","informe o saldo","ver valor","consultar valor",
+        "extrato","ver extrato","consultar extrato","mostrar extrato","extrato do caixa","ver movimentação","consultar movimentação",
+        "mostrar movimentação","movimentação do caixa","historico","histórico","ver histórico","consultar histórico","mostrar histórico","historico do caixa",
+        "histórico do caixa","analisar","analisa","analise","análise","analisar caixa","analise do caixa","análise do caixa",
+        "analisar movimentação","analisar extrato","resumo","resumo do caixa","resumo financeiro",
+        "visão geral","relatorio","relatório","relatorio do caixa","relatório do caixa","como está o caixa",
+        "como está meu saldo","como está o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
+        "me mostra as movimentações","o que foi registrado","quais foram os lançamentos","ver registros",
+        "consultar registros","gastar","gastei","gastou",
+        "registrar venda","cancelar venda","recebi","recebeu","receber"
         "inserir","inseri","inserido","inserir dinheiro","inserir valor",
         "adicionar","adicionei","adicionar dinheiro","adicionar valor",
         "retirar","retirei","retirado","retirar dinheiro","retirar valor",
@@ -149,14 +300,14 @@ def interpretar_comando(texto):
         "saida","saída","saida de dinheiro","saída de dinheiro"
     ]
 
-    if not any(cmd in texto for cmd in comandos_validos):
+    if not any(cmd in formatado for cmd in comandos_validos):
         st.warning("Comando não reconhecido para o sistema de caixa.")
         return
 
     # 👉 1. Verifica se é consulta
-    if eh_consulta(texto):
+    if eh_consulta(formatado):
         consultar_extrato()
         return
 
     # 👉 2. Caso contrário, trata como movimentação
-    processar_movimentacao(texto)
+    processar_movimentacao(formatado)

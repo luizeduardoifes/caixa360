@@ -1,9 +1,8 @@
+import os
+import subprocess
 import streamlit as st
 from faster_whisper import WhisperModel
 import tempfile
-import subprocess
-import os
-
 from services.funções import *
 
 st.set_page_config(layout="centered")
@@ -33,8 +32,6 @@ def carregar_modelo():
 model = carregar_modelo()
 
 
-import os
-import subprocess
 
 def converter_para_wav(entrada):
     # Verifica se o arquivo existe
@@ -118,8 +115,9 @@ if audio is not None:
         st.write(texto)
         botao = st.button("Processar")
         if botao:
+            formatado = texto.lower()
             with st.spinner("Processando..."):
-                interpretar_comando(texto)
+                interpretar_comando(formatado)
 
 
     else:
