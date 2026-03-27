@@ -20,3 +20,7 @@ SELECT saldo FROM extrato WHERE id = (SELECT MAX(id) FROM extrato);
 
 VAZIO_DADOS_EXTRATO = '''SELECT COUNT(*) FROM extrato;
 '''
+
+LISTAR_TODOS = """
+SELECT * FROM extrato ORDER BY id ASC;
+"""

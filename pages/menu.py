@@ -33,20 +33,41 @@ def carregar_modelo():
 model = carregar_modelo()
 
 
+import os
+import subprocess
+
 def converter_para_wav(entrada):
+    # Verifica se o arquivo existe
+    if not os.path.exists(entrada):
+        raise FileNotFoundError(f"Arquivo não encontrado: {entrada}")
+
+    # 👇 COLOQUE AQUI O CAMINHO DO SEU FFMPEG
+    ffmpeg_path = r"C:\Users\USUARIO\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin\ffmpeg.exe"
+
+    # Nome do arquivo de saída
     base = os.path.splitext(entrada)[0]
-    saida = base + "_convertido.wav"  # 👈 mudou aqui
+    saida = base + "_convertido.wav"
 
     comando = [
-        "ffmpeg",
+        ffmpeg_path,
         "-y",
         "-i", entrada,
-        "-ac", "1",
-        "-ar", "16000",
+        "-ac", "1",        # mono
+        "-ar", "16000",    # 16kHz
         saida
     ]
 
-    subprocess.run(comando)
+    try:
+        subprocess.run(
+            comando,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    except subprocess.CalledProcessError as e:
+        print("Erro ao converter áudio:")
+        print(e.stderr.decode())
+        raise
 
     return saida
 

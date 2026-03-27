@@ -31,3 +31,11 @@ def banco_esta_vazio():
     resultado = cursor.fetchone()
     conn.close()
     return resultado[0] == 0
+
+def listar_extrato() -> list[Caixa360]:
+    conn = criar_conexao()
+    cursor = conn.cursor()
+    cursor.execute(LISTAR_TODOS)
+    dados = cursor.fetchall()
+    conn.close()
+    return dados
