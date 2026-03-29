@@ -39,7 +39,7 @@ def converter_para_wav(entrada):
         raise FileNotFoundError(f"Arquivo não encontrado: {entrada}")
 
     # 👇 COLOQUE AQUI O CAMINHO DO SEU FFMPEG
-    ffmpeg_path = r"C:\Users\USUARIO\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin\ffmpeg.exe"
+    ffmpeg_path = "ffmpeg"  # ou "C:/caminho/para/ffmpeg.exe" no Windows
 
     # Nome do arquivo de saída
     base = os.path.splitext(entrada)[0]
