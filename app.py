@@ -1,5 +1,6 @@
 import streamlit as st
 from repo.caixa360_repo import criar_tabela_extrato
+from huggingface_hub import login
 
 criar_tabela_extrato()
 
