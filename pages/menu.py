@@ -20,14 +20,21 @@ if not st.session_state.logado:
 
 st.title("Caixa360")
 
+# inicializa estado
+if "mensagem" not in st.session_state:
+    st.session_state.mensagem = ""
+
 texto = st.text_input("Mensagem")
-botao = st.button("enviar")
+botao = st.button("Enviar")
 
-
+# salva quando clicar
 if botao:
-    
+    st.session_state.mensagem = texto
+
+# processa usando estado (não perde no reload)
+if st.session_state.mensagem:
     with st.spinner("Processando..."):
-        interpretar_comando(texto)
+        interpretar_comando(st.session_state.mensagem)
 
 
 
