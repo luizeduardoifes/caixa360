@@ -24,8 +24,6 @@ with st.form("form_comando"):
     texto = st.text_input("Mensagem")
     enviado = st.form_submit_button("Enviar")
 
-st.write("Texto recebido:", texto)
-
 if enviado:
     with st.spinner("Processando..."):
         interpretar_comando(texto)
