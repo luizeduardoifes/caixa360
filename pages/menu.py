@@ -1,5 +1,5 @@
 import streamlit as st
-from services.funções import *
+from services.tratamento_comandos import *
 
 st.set_page_config(layout="centered")
 
