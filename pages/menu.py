@@ -26,8 +26,8 @@ with st.form("form_comando"):
 
 st.write("Texto recebido:", texto)
 
-# if enviado:
-#     with st.spinner("Processando..."):
-#         interpretar_comando(texto)
+if enviado:
+    with st.spinner("Processando..."):
+        interpretar_comando(texto)
 
     

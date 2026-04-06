@@ -1,3 +1,4 @@
+import unicodedata
 import re
 from datetime import *
 import streamlit as st
@@ -154,33 +155,48 @@ def processar_movimentacao(formatado):
     # 💾 salvar no banco
     get_dados(operacao, valor, categoria)
 
-
 def interpretar_comando(formatado):
 
+
+    # 🔥 normaliza (resolve problema de mobile, acento, etc)
+    def normalizar(texto):
+        texto = texto.lower().strip()
+        texto = unicodedata.normalize("NFD", texto)
+        texto = texto.encode("ascii", "ignore").decode("utf-8")
+        return texto
+
+    if not formatado:
+        st.warning("Digite um comando antes de enviar.")
+        return
+
+    formatado = normalizar(formatado)
+
     comandos_validos = [
-        
         "abrir caixa","fechar caixa","saldo","ver saldo","consultar saldo","mostrar saldo","saldo do caixa","quanto tenho",
-        "quanto tem no caixa","quanto há","valor em caixa","total em caixa","dinheiro em caixa","quanto dinheiro tem",
+        "quanto tem no caixa","quanto ha","valor em caixa","total em caixa","dinheiro em caixa","quanto dinheiro tem",
         "quanto dinheiro eu tenho","me diga o saldo","informe o saldo","ver valor","consultar valor",
-        "extrato","ver extrato","consultar extrato","mostrar extrato","extrato do caixa","ver movimentação","consultar movimentação",
-        "mostrar movimentação","movimentação do caixa","historico","histórico","ver histórico","consultar histórico","mostrar histórico","historico do caixa",
-        "histórico do caixa","analisar","analisa","analise","análise","analisar caixa","analise do caixa","análise do caixa",
-        "analisar movimentação","analisar extrato","resumo","resumo do caixa","resumo financeiro",
-        "visão geral","relatorio","relatório","relatorio do caixa","relatório do caixa","como está o caixa",
-        "como está meu saldo","como está o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
-        "me mostra as movimentações","o que foi registrado","quais foram os lançamentos","ver registros",
+        "extrato","ver extrato","consultar extrato","mostrar extrato","extrato do caixa","ver movimentacao","consultar movimentacao",
+        "mostrar movimentacao","movimentacao do caixa","historico","ver historico","consultar historico","mostrar historico","historico do caixa",
+        "analisar","analisa","analise","analisar caixa","analise do caixa",
+        "analisar movimentacao","analisar extrato","resumo","resumo do caixa","resumo financeiro",
+        "visao geral","relatorio","relatorio do caixa","como esta o caixa",
+        "como esta meu saldo","como esta o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
+        "me mostra as movimentacoes","o que foi registrado","quais foram os lancamentos","ver registros",
         "consultar registros","gastar","gastei","gastou",
-        "registrar venda","cancelar venda","recebi","recebeu","receber"
+        "registrar venda","cancelar venda","recebi","recebeu","receber",  # ✅ corrigido aqui
         "inserir","inseri","inserido","inserir dinheiro","inserir valor",
         "adicionar","adicionei","adicionar dinheiro","adicionar valor",
         "retirar","retirei","retirado","retirar dinheiro","retirar valor",
         "descontar","desconto","descontou","aplicar desconto",
         "entrada","entrada de dinheiro","entrada no caixa",
-        "saida","saída","saida de dinheiro","saída de dinheiro"
+        "saida","saida de dinheiro"
     ]
 
+    # 🔍 debug (te ajuda a ver no mobile)
+    # st.write("Recebido:", formatado)
+
     if not any(cmd in formatado for cmd in comandos_validos):
-        st.warning("Comando não reconhecido para o sistema de caixa.")
+        st.warning(f"Comando não reconhecido")
         return
 
     # 👉 1. Verifica se é consulta
