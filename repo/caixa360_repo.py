@@ -12,7 +12,7 @@ def criar_tabela_extrato():
 def inserir_extrato(extrato: Caixa360) -> Caixa360:
     conn = criar_conexao()
     cursor = conn.cursor()
-    cursor.execute(INSERT_EXTRATO, (extrato.data, extrato.valor, extrato.tipo, extrato.categoria, extrato.saldo))
+    cursor.execute(INSERT_EXTRATO, (extrato.usuario_id, extrato.data, extrato.valor, extrato.tipo, extrato.categoria, extrato.saldo))
     conn.commit()
     conn.close()
 

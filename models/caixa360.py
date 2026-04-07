@@ -4,6 +4,7 @@ import datetime
 
 class Caixa360:
     id: int
+    usuario_id: int
     data: datetime
     valor: float
     tipo: str

@@ -1,6 +1,7 @@
 CREATE_TABLE_EXTRATO = '''
 CREATE TABLE IF NOT EXISTS extrato (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INTEGER NOT NULL,
     data DATE NOT NULL,
     valor REAL NOT NULL,
     tipo TEXT NOT NULL,
@@ -10,8 +11,8 @@ CREATE TABLE IF NOT EXISTS extrato (
 '''
 
 INSERT_EXTRATO = '''
-INSERT INTO extrato (data, valor, tipo, categoria, saldo)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO extrato (usuario_id, data, valor, tipo, categoria, saldo)
+VALUES (?, ?, ?, ?, ?, ?);
 '''
 
 SELECT_COLUMN_SALDO = '''
