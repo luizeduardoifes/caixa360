@@ -15,4 +15,4 @@ def criar_usuario(nome, senha):
     conn.commit()
     conn.close()
 
-criar_usuario("dudu", "Le07122005@")
+criar_usuario("marcos", "12345")

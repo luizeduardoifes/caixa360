@@ -1,5 +1,6 @@
 import datetime
 import streamlit as st
+from services.auth import get_usuario_id
 from services.tratamento_comandos import *
 from models.caixa360 import Caixa360
 from repo.caixa360_repo import inserir_extrato, obter_saldo_atual
@@ -13,6 +14,7 @@ def get_dados(operacao, valor, categoria):
 
         dados = Caixa360(
             id=0,
+            usuario_id = get_usuario_id(),
             data=data,
             valor=valor,
             tipo=operacao,
@@ -29,6 +31,7 @@ def get_dados(operacao, valor, categoria):
 
         dados = Caixa360(
             id=0,
+            usuario_id = get_usuario_id(),
             data=data,
             valor=valor,
             tipo=operacao,

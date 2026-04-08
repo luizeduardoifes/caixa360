@@ -5,10 +5,9 @@ from services.seguranca_senha import verificar_login
 from utils.config import configurar_pagina
 
 configurar_pagina(mostrar_sidebar=False)
-
-
 criar_tabela_extrato()
 criar_tabela_usuarios()
+
 st.title("Login")
 
 usuario = st.text_input("Usuário")

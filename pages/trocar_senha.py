@@ -4,24 +4,30 @@ import streamlit as st
 import sqlite3
 import bcrypt
 from sql.usuarios_sql import UPDATE_SENHA
-from utils.config import configurar_pagina
+from utils.config import configurar_pagina, proteger_pagina_completa
 
 configurar_pagina(mostrar_sidebar=False)
+proteger_pagina_completa()
 
 def senha_forte(senha):
-    if len(senha) < 8:
-        return "A senha deve ter pelo menos 8 caracteres"
-    if not re.search(r"[A-Z]", senha):
-        return "Deve conter pelo menos 1 letra maiúscula"
-    if not re.search(r"[a-z]", senha):
-        return "Deve conter pelo menos 1 letra minúscula"
-    if not re.search(r"[0-9]", senha):
-        return "Deve conter pelo menos 1 número"
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", senha):
-        return "Deve conter pelo menos 1 símbolo"
-    return None
+    error = []
+    if not senha:
+        AttributeError("A senha não pode ser vazia")
+        return
+    else:
+        if len(senha) < 8:
+            error.append("A senha deve ter pelo menos 8 caracteres")
+        if not re.search(r"[A-Z]", senha):
+            error.append("Deve conter pelo menos 1 letra maiúscula")
+        if not re.search(r"[a-z]", senha):
+            error.append("Deve conter pelo menos 1 letra minúscula")
+        if not re.search(r"[0-9]", senha):
+            error.append("Deve conter pelo menos 1 número")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", senha):
+            error.append("Deve conter pelo menos 1 símbolo")
+        return error
 
-# 🖥️ interface
+
 st.title("Trocar Senha")
 
 nova_senha = st.text_input("Nova senha", type="password")
@@ -35,7 +41,9 @@ if st.button("Atualizar senha"):
 
     erro = senha_forte(nova_senha)
     if erro:
-        st.error(erro)
+        st.write("Erro:")
+        for e in erro:
+            st.error(f"{e}\n")
         st.stop()
 
     # 🔐 gerar hash
@@ -54,5 +62,5 @@ if st.button("Atualizar senha"):
 
     st.success("Senha atualizada com sucesso!")
     time.sleep(2)
-
-    st.switch_page("pages/menu.py")
+    st.session_state.clear()
+    st.switch_page("app.py")

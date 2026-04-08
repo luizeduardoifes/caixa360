@@ -10,7 +10,7 @@ def consultar_extrato():
     if dados:
         st.write("EXTRATO:")
 
-        df = pd.DataFrame(dados, columns=["id","data", "valor", "tipo", "categoria", "saldo"])
+        df = pd.DataFrame(dados, columns=["id","usuario_id","data", "valor", "tipo", "categoria", "saldo"])
 
         # 🔴 valor negativo para saída
         df["valor"] = df.apply(
@@ -52,7 +52,7 @@ def consultar_extrato():
             return estilos
 
         st.dataframe(
-            df[["id","data", "valor_operação", "tipo", "categoria", "saldo_formatado"]]
+            df[["id","usuario_id","data", "valor_operação", "tipo", "categoria", "saldo_formatado"]]
             .style.apply(estilo_linha, axis=1),
             use_container_width=True
         )
