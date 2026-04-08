@@ -9,7 +9,8 @@ from repo.caixa360_repo import inserir_extrato, obter_saldo_atual
 def get_dados(operacao, valor, categoria):
 
     if operacao == "entrada":
-        saldo = obter_saldo_atual() + valor
+        user = get_usuario_id()
+        saldo = obter_saldo_atual(user) + valor
         data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         dados = Caixa360(
@@ -26,7 +27,8 @@ def get_dados(operacao, valor, categoria):
         st.success("Entrada registrada com sucesso!")
 
     elif operacao == "saida":
-        saldo = obter_saldo_atual() - valor
+        user = get_usuario_id()
+        saldo = obter_saldo_atual(user) - valor
         data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         dados = Caixa360(

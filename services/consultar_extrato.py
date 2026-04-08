@@ -1,12 +1,14 @@
 import pandas as pd
 import streamlit as st
+from services.auth import get_usuario_id
 from services.tratamento_comandos import *
 from repo.caixa360_repo import listar_extrato, obter_saldo_atual
 
 
 def consultar_extrato():
-    dados = listar_extrato()
-    saldo_atual = obter_saldo_atual()
+    usuario_atual = get_usuario_id()
+    dados = listar_extrato(usuario_atual)
+    saldo_atual = obter_saldo_atual(usuario_atual)
     if dados:
         st.write("EXTRATO:")
 

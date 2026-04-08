@@ -15,13 +15,17 @@ INSERT INTO extrato (usuario_id, data, valor, tipo, categoria, saldo)
 VALUES (?, ?, ?, ?, ?, ?);
 '''
 
-SELECT_COLUMN_SALDO = '''
-SELECT saldo FROM extrato WHERE id = (SELECT MAX(id) FROM extrato);
-'''
+SELECT_COLUMN_SALDO = """
+SELECT saldo 
+FROM extrato 
+WHERE usuario_id = ?
+ORDER BY id DESC 
+LIMIT 1
+"""
 
 VAZIO_DADOS_EXTRATO = '''SELECT COUNT(*) FROM extrato;
 '''
 
 LISTAR_TODOS = """
-SELECT * FROM extrato ORDER BY id ASC;
+SELECT * FROM extrato WHERE usuario_id = ?;
 """

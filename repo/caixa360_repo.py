@@ -16,10 +16,10 @@ def inserir_extrato(extrato: Caixa360) -> Caixa360:
     conn.commit()
     conn.close()
 
-def obter_saldo_atual() -> float:
+def obter_saldo_atual(usuario_id: int) -> float:
     conn = criar_conexao()
     cursor = conn.cursor()
-    cursor.execute(SELECT_COLUMN_SALDO)
+    cursor.execute(SELECT_COLUMN_SALDO,(usuario_id,))
     resultado = cursor.fetchone()
     conn.close()
     return resultado[0] if resultado else 0.0
@@ -32,10 +32,10 @@ def banco_esta_vazio():
     conn.close()
     return resultado[0] == 0
 
-def listar_extrato() -> list[Caixa360]:
+def listar_extrato(usuario_id: Caixa360) -> list[Caixa360]:
     conn = criar_conexao()
     cursor = conn.cursor()
-    cursor.execute(LISTAR_TODOS)
+    cursor.execute(LISTAR_TODOS,(usuario_id,))
     dados = cursor.fetchall()
     conn.close()
     return dados
