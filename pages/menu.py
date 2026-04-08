@@ -1,22 +1,8 @@
 import streamlit as st
 from services.tratamento_comandos import *
+from utils.config import configurar_pagina
 
-st.set_page_config(layout="centered")
-
-
-if "logado" not in st.session_state:
-    st.session_state.logado = False
-
-if not st.session_state.logado:
-    st.markdown("""
-        <style>
-            [data-testid="stSidebar"] {
-                display: none;
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
-
+configurar_pagina(mostrar_sidebar=False)
 
 st.title("Caixa360")
 

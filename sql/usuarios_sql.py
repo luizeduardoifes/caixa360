@@ -13,5 +13,5 @@ VALUES (?, ?, ?)
 '''
 
 UPDATE_SENHA = '''
-"UPDATE usuarios SET senha = ?, trocar_senha = 0 WHERE id = ?"
+UPDATE usuarios SET senha = ?, trocar_senha = 0 WHERE id = ?
 '''

@@ -3,31 +3,11 @@ import re
 import streamlit as st
 import sqlite3
 import bcrypt
-
 from sql.usuarios_sql import UPDATE_SENHA
+from utils.config import configurar_pagina
 
-# ⚙️ configuração da página
-st.set_page_config(layout="centered")
+configurar_pagina(mostrar_sidebar=False)
 
-# 🔐 inicializa sessão
-if "logado" not in st.session_state:
-    st.session_state.logado = False
-
-# 🚫 bloqueia acesso sem login
-if not st.session_state.logado:
-    st.warning("Faça login para acessar")
-    st.stop()
-
-# 🎨 esconder sidebar
-st.markdown("""
-    <style>
-        [data-testid="stSidebar"] {
-            display: none;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-# 🧠 validação de senha forte
 def senha_forte(senha):
     if len(senha) < 8:
         return "A senha deve ter pelo menos 8 caracteres"
