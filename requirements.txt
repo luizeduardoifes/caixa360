@@ -4,3 +4,4 @@ numpy
 moviepy
 faster-whisper
 bcrypt
+psycopg2

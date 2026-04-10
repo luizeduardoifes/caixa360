@@ -1,7 +1,7 @@
 import streamlit as st
 from repo.caixa360_repo import criar_tabela_extrato
 from repo.usuarios_repo import criar_tabela_usuarios
-from services.seguranca_senha import verificar_login
+from services.seguranca_senha import autenticar_usuario
 from utils.config import configurar_pagina
 
 configurar_pagina(mostrar_sidebar=False)
@@ -15,18 +15,19 @@ senha = st.text_input("Senha", type="password")
 
 if st.button("Entrar"):
 
-    resultado = verificar_login(usuario, senha)
+    resultado = autenticar_usuario(usuario, senha)
 
     if resultado:
-        st.success("✅ Login correto")
-
-        st.session_state.logado = True
-        st.session_state.usuario_id = resultado["id"]
-
-        if resultado["trocar_senha"] == 1:
+        if resultado[1]:
+            st.session_state.usuario_id = resultado[0]
+            st.session_state.trocar_senha = True
             st.switch_page("pages/trocar_senha.py")
+        
         else:
+            st.session_state.usuario_id = resultado[0]
+            st.session_state.logado = True
             st.switch_page("pages/menu.py")
 
     else:
         st.error("Usuário ou senha inválidos")
+    

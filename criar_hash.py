@@ -1,18 +1,18 @@
 import bcrypt
-import sqlite3
+from database.database import criar_conexao
 
 def criar_usuario(nome, senha):
-    conn = sqlite3.connect("extrato.db")
+    conn = criar_conexao()
     cursor = conn.cursor()
 
     senha_hash = bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
 
     cursor.execute(
-        "INSERT INTO usuarios (usuario, senha, trocar_senha) VALUES (?, ?, ?)",
-        (nome, senha_hash, 1)
+        "INSERT INTO usuarios (usuario, senha, trocar_senha) VALUES (%s, %s, %s)",
+        (nome, senha_hash, True)
     )
 
     conn.commit()
     conn.close()
 
-criar_usuario("marcos", "12345")
+criar_usuario("Luiz Eduardo", "12345")

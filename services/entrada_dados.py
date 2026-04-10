@@ -12,10 +12,11 @@ def get_dados(operacao, valor, categoria):
         user = get_usuario_id()
         saldo = obter_saldo_atual(user) + valor
         data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        usuario_id = get_usuario_id()
 
         dados = Caixa360(
             id=0,
-            usuario_id = get_usuario_id(),
+            usuario_id = usuario_id,
             data=data,
             valor=valor,
             tipo=operacao,

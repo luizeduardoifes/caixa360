@@ -1,17 +1,23 @@
 CREATE_TABLE_USUARIOS = '''
 CREATE TABLE IF NOT EXISTS usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     usuario TEXT NOT NULL UNIQUE,
     senha TEXT NOT NULL,
-    trocar_senha INTEGER NOT NULL DEFAULT 1
+    trocar_senha BOOLEAN NOT NULL DEFAULT TRUE
 );
 '''
 
 INSERT_USUARIO = '''
 INSERT INTO usuarios (usuario, senha, trocar_senha) 
-VALUES (?, ?, ?)
+VALUES (%s, %s, %s)
 '''
 
 UPDATE_SENHA = '''
-UPDATE usuarios SET senha = ?, trocar_senha = 0 WHERE id = ?
+UPDATE usuarios 
+SET senha = %s, trocar_senha = FALSE 
+WHERE id = %s
+'''
+
+SELECIONAR_USUARIO_POR_ID = '''
+SELECT id, senha, trocar_senha FROM usuarios WHERE usuario = %s
 '''

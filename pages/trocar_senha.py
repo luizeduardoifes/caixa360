@@ -3,11 +3,12 @@ import re
 import streamlit as st
 import sqlite3
 import bcrypt
+from database.database import criar_conexao
 from sql.usuarios_sql import UPDATE_SENHA
-from utils.config import configurar_pagina, proteger_pagina_completa
+from utils.config import configurar_pagina, proteger_troca_senha
 
 configurar_pagina(mostrar_sidebar=False)
-proteger_pagina_completa()
+proteger_troca_senha()
 
 def senha_forte(senha):
     error = []
@@ -49,7 +50,7 @@ if st.button("Atualizar senha"):
     # 🔐 gerar hash
     senha_hash = bcrypt.hashpw(nova_senha.encode(), bcrypt.gensalt()).decode()
 
-    conn = sqlite3.connect("extrato.db")
+    conn = criar_conexao()
     cursor = conn.cursor()
 
     cursor.execute(

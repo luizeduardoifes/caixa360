@@ -28,15 +28,16 @@ def esconder_sidebar():
     """, unsafe_allow_html=True)
 
 
-def proteger_pagina_completa():
+def proteger_pagina():
     if not st.session_state.get("logado"):
         st.warning("Faça login primeiro")
-        if st.button("voltar para login", key="voltar_login"):
+        if st.button("Voltar para login"):
             st.switch_page("app.py")
         st.stop()
 
-    if not st.session_state.get("usuario_id"):
-        st.error("Sessão inválida. Faça login novamente.")
-        if st.button("voltar para login", key="voltar_para_login"):
+def proteger_troca_senha():
+    if not st.session_state.get("trocar_senha"):
+        st.error("Acesso inválido")
+        if st.button("Voltar para login"):
             st.switch_page("app.py")
         st.stop()

@@ -1,6 +1,6 @@
 CREATE_TABLE_EXTRATO = '''
 CREATE TABLE IF NOT EXISTS extrato (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     usuario_id INTEGER NOT NULL,
     data DATE NOT NULL,
     valor REAL NOT NULL,
@@ -12,13 +12,13 @@ CREATE TABLE IF NOT EXISTS extrato (
 
 INSERT_EXTRATO = '''
 INSERT INTO extrato (usuario_id, data, valor, tipo, categoria, saldo)
-VALUES (?, ?, ?, ?, ?, ?);
+VALUES (%s, %s, %s, %s, %s, %s);
 '''
 
 SELECT_COLUMN_SALDO = """
 SELECT saldo 
 FROM extrato 
-WHERE usuario_id = ?
+WHERE usuario_id = %s
 ORDER BY id DESC 
 LIMIT 1
 """
@@ -27,5 +27,8 @@ VAZIO_DADOS_EXTRATO = '''SELECT COUNT(*) FROM extrato;
 '''
 
 LISTAR_TODOS = """
-SELECT * FROM extrato WHERE usuario_id = ?;
+SELECT id, usuario_id, data, valor, tipo, categoria, saldo
+FROM extrato 
+WHERE usuario_id = %s
+ORDER BY id ASC;
 """

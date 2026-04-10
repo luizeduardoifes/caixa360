@@ -12,7 +12,19 @@ def criar_tabela_extrato():
 def inserir_extrato(extrato: Caixa360) -> Caixa360:
     conn = criar_conexao()
     cursor = conn.cursor()
-    cursor.execute(INSERT_EXTRATO, (extrato.usuario_id, extrato.data, extrato.valor, extrato.tipo, extrato.categoria, extrato.saldo))
+
+    cursor.execute(
+        INSERT_EXTRATO,
+        (
+           extrato.usuario_id,
+           extrato.data,
+           extrato.valor,
+           extrato.tipo,
+           extrato.categoria,
+           extrato.saldo
+        )
+    )
+
     conn.commit()
     conn.close()
 
@@ -32,10 +44,10 @@ def banco_esta_vazio():
     conn.close()
     return resultado[0] == 0
 
-def listar_extrato(usuario_id: Caixa360) -> list[Caixa360]:
+def listar_extrato(usuario_id: int) -> list:
     conn = criar_conexao()
     cursor = conn.cursor()
-    cursor.execute(LISTAR_TODOS,(usuario_id,))
+    cursor.execute(LISTAR_TODOS, (usuario_id,))
     dados = cursor.fetchall()
     conn.close()
     return dados

@@ -1,9 +1,9 @@
 import streamlit as st
 from services.tratamento_comandos import *
-from utils.config import configurar_pagina, proteger_pagina_completa
+from utils.config import configurar_pagina, proteger_pagina
 
 configurar_pagina(mostrar_sidebar=False)
-proteger_pagina_completa()
+proteger_pagina()
 
 st.title("Caixa360")
 

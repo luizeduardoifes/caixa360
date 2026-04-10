@@ -1,70 +1,94 @@
 import pandas as pd
 import streamlit as st
-from services.auth import get_usuario_id
-from services.tratamento_comandos import *
 from repo.caixa360_repo import listar_extrato, obter_saldo_atual
-
+from services.auth import get_usuario_id
 
 def consultar_extrato():
     usuario_atual = get_usuario_id()
     dados = listar_extrato(usuario_atual)
     saldo_atual = obter_saldo_atual(usuario_atual)
-    if dados:
-        st.write("EXTRATO:")
 
-        df = pd.DataFrame(dados, columns=["id","usuario_id","data", "valor", "tipo", "categoria", "saldo"])
+    if not dados:
+        st.info("Nenhum registro encontrado, faça a primeira operação.")
+        return
 
-        # 🔴 valor negativo para saída
-        df["valor"] = df.apply(
-            lambda row: -row["valor"] if row["tipo"] == "saida" else row["valor"],
-            axis=1
-        )
+    st.write("EXTRATO:")
 
-        # 💰 formatação moeda
-        def formatar_moeda(x):
+    # 🔹 DataFrame
+    df = pd.DataFrame(
+        dados,
+        columns=["id", "usuario_id", "data", "valor", "tipo", "categoria", "saldo"]
+    )
+
+    # 🔥 garante tipos numéricos
+    df["valor"] = pd.to_numeric(df["valor"], errors="coerce")
+    df["saldo"] = pd.to_numeric(df["saldo"], errors="coerce")
+
+    # remove lixo
+    df = df.dropna(subset=["valor", "saldo"])
+
+    # 🔴 saída negativa
+    df.loc[df["tipo"] == "saida", "valor"] *= -1
+
+    # 💰 formatação moeda
+    def formatar_moeda(x):
+        try:
             return f"R$ {x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        except:
+            return "R$ 0,00"
 
-        df["valor_operação"] = df["valor"].apply(formatar_moeda)
-        df["saldo_formatado"] = df["saldo"].apply(formatar_moeda)
+    df["valor_operação"] = df["valor"].apply(formatar_moeda)
+    df["saldo_formatado"] = df["saldo"].apply(formatar_moeda)
 
-        # 🎨 estilo corrigido
-        def estilo_linha(row):
-            estilos = []
+    # 📊 colunas visíveis
+    colunas_exibir = [
+        "id",
+        "usuario_id",
+        "data",
+        "valor_operação",
+        "tipo",
+        "categoria",
+        "saldo_formatado"
+    ]
 
-            for col in row.index:
-                if col == "valor_operação":
-                    if row["tipo"] == "entrada":
-                        estilos.append("color: green")
-                    elif row["tipo"] == "saida":
-                        estilos.append("color: red")
-                    else:
-                        estilos.append("")
+    # 🔥 cria DF separado pra exibição
+    df_exibir = df[colunas_exibir].copy()
 
-                elif col == "saldo_formatado":
-                    # 👇 USA saldo original do df (via nome fixo)
-                    saldo_original = df.loc[row.name, "saldo"]
+    # 🎨 estilo corrigido (usa df original pra pegar saldo)
+    def estilo_linha(row):
+        estilos = []
+        saldo_original = df.loc[row.name, "saldo"]
 
-                    if saldo_original >= 0:
-                        estilos.append("color: green")
-                    else:
-                        estilos.append("color: red")
+        for col in row.index:
+            if col == "valor_operação":
+                if row["tipo"] == "entrada":
+                    estilos.append("color: green")
+                elif row["tipo"] == "saida":
+                    estilos.append("color: red")
                 else:
                     estilos.append("")
 
-            return estilos
+            elif col == "saldo_formatado":
+                if saldo_original >= 0:
+                    estilos.append("color: green")
+                else:
+                    estilos.append("color: red")
+            else:
+                estilos.append("")
 
-        st.dataframe(
-            df[["id","usuario_id","data", "valor_operação", "tipo", "categoria", "saldo_formatado"]]
-            .style.apply(estilo_linha, axis=1),
-            use_container_width=True
-        )
+        return estilos
 
-        # 💰 saldo atual
-        saldo_formatado = formatar_moeda(saldo_atual)
+    # 📊 tabela (CORRETA)
+    st.dataframe(
+        df_exibir.style.apply(estilo_linha, axis=1),
+        use_container_width=True
+    )
 
-        if saldo_atual >= 0:
-            st.markdown(f"<h3 style='color:green'>Saldo Atual: {saldo_formatado}</h3>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<h3 style='color:red'>Saldo Atual: {saldo_formatado}</h3>", unsafe_allow_html=True)
-    else:
-        st.info("Nenhum registro encontrado,faça a primeira operação.")
+    # 💰 saldo atual
+    saldo_formatado = formatar_moeda(saldo_atual)
+    cor = "green" if saldo_atual >= 0 else "red"
+
+    st.markdown(
+        f"<h3 style='color:{cor}'>Saldo Atual: {saldo_formatado}</h3>",
+        unsafe_allow_html=True
+    )
