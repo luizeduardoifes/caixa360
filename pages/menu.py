@@ -1,9 +1,11 @@
 import streamlit as st
 from services.tratamento_comandos import *
 from utils.config import configurar_pagina, proteger_pagina
+from utils.saudacao import saudacao_usuario
 
 configurar_pagina(mostrar_sidebar=False)
 proteger_pagina()
+saudacao_usuario()
 
 st.title("Caixa360")
 

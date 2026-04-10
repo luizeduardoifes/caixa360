@@ -24,9 +24,13 @@ if st.button("Entrar"):
             st.switch_page("pages/trocar_senha.py")
         
         else:
+            nome_usuario = resultado[1]
             st.session_state.usuario_id = resultado[0]
+            st.session_state.usuario = usuario
             st.session_state.logado = True
             st.switch_page("pages/menu.py")
+  
+
 
     else:
         st.error("Usuário ou senha inválidos")
