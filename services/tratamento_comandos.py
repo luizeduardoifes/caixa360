@@ -102,7 +102,7 @@ def processar_movimentacao(formatado):
 
         # 3. fallback para número normal (2.500,50 etc)
         if valor is None:
-            valor_match = re.search(r"\d{1,3}(?:\.\d{3})*(?:,\d+)?", formatado)
+            valor_match = re.search(r"\d+(?:\.\d{3})*(?:,\d+)?", formatado)
 
             if valor_match:
                 valor_str = valor_match.group()
