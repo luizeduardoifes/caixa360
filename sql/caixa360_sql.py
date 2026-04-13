@@ -2,7 +2,7 @@ CREATE_TABLE_EXTRATO = '''
 CREATE TABLE IF NOT EXISTS extrato (
     id SERIAL PRIMARY KEY,
     usuario_id INTEGER NOT NULL,
-    data DATETIME NOT NULL,
+    data TIMESTAMP NOT NULL,
     valor REAL NOT NULL,
     tipo TEXT NOT NULL,
     categoria TEXT NOT NULL,
