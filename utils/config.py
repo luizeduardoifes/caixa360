@@ -24,6 +24,9 @@ def esconder_sidebar():
         <style>
             [data-testid="stSidebar"] {display: none;}
             [data-testid="collapsedControl"] {display: none;}
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
         </style>
     """, unsafe_allow_html=True)
 
