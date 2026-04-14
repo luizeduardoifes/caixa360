@@ -22,11 +22,38 @@ def configurar_pagina(mostrar_sidebar=False):
 def esconder_sidebar():
     st.markdown("""
         <style>
-            [data-testid="stSidebar"] {display: none;}
-            [data-testid="collapsedControl"] {display: none;}
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
+            /* Esconde sidebar */
+            [data-testid="stSidebar"] {display: none !important;}
+            [data-testid="collapsedControl"] {display: none !important;}
+
+            /* Esconde elementos padrão */
+            #MainMenu {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            header {visibility: hidden !important;}
+
+            /* Tenta esconder links do GitHub */
+            a[href*="github"] {
+                display: none !important;
+                width: 0px !important;
+                height: 0px !important;
+                overflow: hidden !important;
+            }
+
+            /* Caso o botão ainda apareça (fallback) */
+            div[data-testid="stToolbar"] {
+                position: fixed !important;
+                right: -100px !important; /* joga pra fora da tela */
+                top: 0px !important;
+                opacity: 0 !important; /* invisível */
+                pointer-events: none !important;
+            }
+
+            /* Reduz qualquer botão no topo */
+            button[kind="header"] {
+                transform: scale(0.5) !important;
+                opacity: 0 !important;
+            }
+
         </style>
     """, unsafe_allow_html=True)
 
