@@ -3,8 +3,17 @@ import re
 from datetime import *
 import streamlit as st
 from repo.caixa360_repo import *
-from services.consultar_extrato import consultar_extrato
+from services.consultar_extrato import consultar_extrato, grafico_entrada_saida, grafico_pizza
 from services.entrada_dados import get_dados
+
+def eh_consulta_grafico(formatado):
+    comandos_grafico = [
+        "grafico","grafico do caixa","grafico de entradas e saidas","grafico de movimentacao",
+        "grafico de extrato","mostrar grafico","ver grafico","consultar grafico",
+        "analise grafica","analisa grafica","relatorio grafico"
+    ]
+
+    return any(p in formatado for p in comandos_grafico)
 
 
 def eh_consulta(formatado):
@@ -173,13 +182,15 @@ def interpretar_comando(formatado):
         "como esta meu saldo","como esta o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
         "me mostra as movimentacoes","o que foi registrado","quais foram os lancamentos","ver registros",
         "consultar registros","gastar","gastei","gastou",
-        "registrar venda","cancelar venda","recebi","recebeu","receber",  # ✅ corrigido aqui
+        "registrar venda","cancelar venda","recebi","recebeu","receber", 
         "inserir","inseri","inserido","inserir dinheiro","inserir valor",
         "adicionar","adicionei","adicionar dinheiro","adicionar valor",
         "retirar","retirei","retirado","retirar dinheiro","retirar valor",
         "descontar","desconto","descontou","aplicar desconto",
         "entrada","entrada de dinheiro","entrada no caixa",
-        "saida","saida de dinheiro"
+        "saida","saida de dinheiro","grafico","grafico do caixa","grafico de entradas e saidas","grafico de movimentacao",
+        "grafico de extrato","mostrar grafico","ver grafico","consultar grafico",
+        "analise grafica","analisa grafica","relatorio grafico"
     ]
 
     # 🔍 debug (te ajuda a ver no mobile)
@@ -192,6 +203,12 @@ def interpretar_comando(formatado):
     # 👉 1. Verifica se é consulta
     if eh_consulta(formatado):
         consultar_extrato()
+        return
+
+    if eh_consulta_grafico(formatado):
+        st.write("Dashboard")
+        grafico_entrada_saida()
+        grafico_pizza()
         return
 
     # 👉 2. Caso contrário, trata como movimentação

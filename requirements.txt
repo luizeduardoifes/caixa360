@@ -5,3 +5,4 @@ moviepy
 faster-whisper
 bcrypt
 psycopg2-binary
+altair

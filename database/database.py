@@ -1,8 +1,4 @@
-import os
-from dotenv import load_dotenv
 import psycopg2
-
-load_dotenv()
 
 def criar_conexao():
     conn = psycopg2.connect(
