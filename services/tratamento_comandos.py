@@ -81,23 +81,49 @@ def eh_consulta(formatado):
 
     return any(p in formatado for p in comandos_consulta)
 
+def validacao(tipo_operacao, valor_operacao, categoria_operacao):
+    erro = []
+
+    if tipo_operacao not in ["entrada", "saida"]:
+        erro.append("Tipo de operação inválido.")
+
+    if valor_operacao is None or valor_operacao <= 0:
+        erro.append("O valor deve ser maior que zero.")
+
+    if not categoria_operacao or not categoria_operacao.strip():
+        erro.append("A categoria não pode estar vazia.")
+
+    if banco_esta_vazio() and tipo_operacao == "saida":
+        erro.append("Não é possível registrar saída sem saldo inicial.")
+
+    if erro:
+        for msg in erro:
+            st.error(msg)
+        return False
+
+    return True
+
 
 def eh_movimentacao_rapida(texto):
 
     palavras = texto.split()
 
-    tem_numero = False
-    tem_texto = False
+    if len(palavras) == 2:
+        
 
-    for palavra in palavras:
+        tem_numero = False
+        tem_texto = False
 
-        # detecta número
-        if re.match(r'^\d+[,.]?\d*$', palavra):
-            tem_numero = True
-        else:
-            tem_texto = True
+        for palavra in palavras:
 
-    return tem_numero and tem_texto
+            # detecta número
+            if re.match(r'^\d+[,.]?\d*$', palavra):
+                tem_numero = True
+            else:
+                tem_texto = True
+
+        return tem_numero and tem_texto
+    return False
 
 
 def processar_movimentacao(formatado):
@@ -174,8 +200,6 @@ def processar_movimentacao(formatado):
 
 def processar_movimentacao_rapida(texto):
 
-    import re
-
     palavras_ignoradas = [
         "reais",
         "real",
@@ -230,75 +254,58 @@ def interpretar_comando(formatado):
 
     formatado = normalizar(formatado)
 
-    comandos_validos = [
-        "abrir caixa","fechar caixa","saldo","ver saldo","consultar saldo","mostrar saldo","saldo do caixa","quanto tenho",
-        "quanto tem no caixa","quanto ha","valor em caixa","total em caixa","dinheiro em caixa","quanto dinheiro tem",
-        "quanto dinheiro eu tenho","me diga o saldo","informe o saldo","ver valor","consultar valor",
-        "extrato","ver extrato","consultar extrato","mostrar extrato","extrato do caixa","ver movimentacao","consultar movimentacao",
-        "mostrar movimentacao","movimentacao do caixa","historico","ver historico","consultar historico","mostrar historico","historico do caixa",
-        "analisar","analisa","analise","analisar caixa","analise do caixa",
-        "analisar movimentacao","analisar extrato","resumo","resumo do caixa","resumo financeiro",
-        "visao geral","relatorio","relatorio do caixa","como esta o caixa",
-        "como esta meu saldo","como esta o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
-        "me mostra as movimentacoes","o que foi registrado","quais foram os lancamentos","ver registros",
-        "consultar registros","gastar","gastei","gastou",
-        "registrar venda","cancelar venda","recebi","recebeu","receber", 
-        "inserir","inseri","inserido","inserir dinheiro","inserir valor",
-        "adicionar","adicionei","adicionar dinheiro","adicionar valor",
-        "retirar","retirei","retirado","retirar dinheiro","retirar valor",
-        "descontar","desconto","descontou","aplicar desconto",
-        "entrada","entrada de dinheiro","entrada no caixa",
-        "saida","saida de dinheiro","grafico","grafico do caixa","grafico de entradas e saidas","grafico de movimentacao",
-        "grafico de extrato","mostrar grafico","ver grafico","consultar grafico",
-        "analise grafica","analisa grafica","relatorio grafico"
-    ]
-
-    # 🔍 debug (te ajuda a ver no mobile)
-    # st.write("Recebido:", formatado)
-
-
-    # 👉 1. Verifica se é consulta
-    if eh_consulta(formatado):
-        consultar_extrato()
-        return
-
-    if eh_consulta_grafico(formatado):
-        st.write("Dashboard")
-        grafico_entrada_saida()
-        grafico_pizza()
-        return
-    
-    # 👉 NOVA LÓGICA
     if eh_movimentacao_rapida(formatado):
         processar_movimentacao_rapida(formatado)
         return
-
-    if not any(cmd in formatado for cmd in comandos_validos):
-        st.warning(f"Comando não reconhecido")
-        return
     
-    # 👉 2. Caso contrário, trata como movimentação
-    processar_movimentacao(formatado)
+ 
+    else:
+        comandos_validos = [
+            "abrir caixa","fechar caixa","saldo","ver saldo","consultar saldo","mostrar saldo","saldo do caixa","quanto tenho",
+            "quanto tem no caixa","quanto ha","valor em caixa","total em caixa","dinheiro em caixa","quanto dinheiro tem",
+            "quanto dinheiro eu tenho","me diga o saldo","informe o saldo","ver valor","consultar valor",
+            "extrato","ver extrato","consultar extrato","mostrar extrato","extrato do caixa","ver movimentacao","consultar movimentacao",
+            "mostrar movimentacao","movimentacao do caixa","historico","ver historico","consultar historico","mostrar historico","historico do caixa",
+            "analisar","analisa","analise","analisar caixa","analise do caixa",
+            "analisar movimentacao","analisar extrato","resumo","resumo do caixa","resumo financeiro",
+            "visao geral","relatorio","relatorio do caixa","como esta o caixa",
+            "como esta meu saldo","como esta o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
+            "me mostra as movimentacoes","o que foi registrado","quais foram os lancamentos","ver registros",
+            "consultar registros","gastar","gastei","gastou",
+            "registrar venda","cancelar venda","recebi","recebeu","receber", 
+            "inserir","inseri","inserido","inserir dinheiro","inserir valor",
+            "adicionar","adicionei","adicionar dinheiro","adicionar valor",
+            "retirar","retirei","retirado","retirar dinheiro","retirar valor",
+            "descontar","desconto","descontou","aplicar desconto",
+            "entrada","entrada de dinheiro","entrada no caixa",
+            "saida","saida de dinheiro","grafico","grafico do caixa","grafico de entradas e saidas","grafico de movimentacao",
+            "grafico de extrato","mostrar grafico","ver grafico","consultar grafico",
+            "analise grafica","analisa grafica","relatorio grafico"
+        ]
+
+        # 🔍 debug (te ajuda a ver no mobile)
+        # st.write("Recebido:", formatado)
 
 
-def validacao(tipo_operacao, valor_operacao, categoria_operacao):
-    erro = []
+        # 👉 1. Verifica se é consulta
+        if eh_consulta(formatado):
+            consultar_extrato()
+            return
 
-    if tipo_operacao not in ["entrada", "saida"]:
-        erro.append("Tipo de operação inválido.")
+        if eh_consulta_grafico(formatado):
+            st.write("Dashboard")
+            grafico_entrada_saida()
+            grafico_pizza()
+            return
+        
+        # 👉 NOVA LÓGICA
+        
 
-    if valor_operacao is None or valor_operacao <= 0:
-        erro.append("O valor deve ser maior que zero.")
+        if not any(cmd in formatado for cmd in comandos_validos):
+            st.warning(f"Comando não reconhecido")
+            return
+        
+        # 👉 2. Caso contrário, trata como movimentação
+        processar_movimentacao(formatado)
 
-    if not categoria_operacao or not categoria_operacao.strip():
-        erro.append("A categoria não pode estar vazia.")
 
-    if banco_esta_vazio() and tipo_operacao == "saida":
-        erro.append("Não é possível registrar saída sem saldo inicial.")
-
-    if erro:
-        for msg in erro:
-            st.error(msg)
-        return False
-
-    return True

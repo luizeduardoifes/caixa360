@@ -99,56 +99,75 @@ def consultar_extrato():
 
 
 def grafico_entrada_saida():
+
     usuario_atual = get_usuario_id()
     dados = listar_extrato(usuario_atual)
+
     df = pd.DataFrame(dados)
-    df.columns = ["id", "usuario_id", "data", "valor", "tipo", "categoria", "saldo"]
-    # Conversões
-    df["data"] = pd.to_datetime(df["data"])
+
+    df.columns = [
+        "id",
+        "usuario_id",
+        "data",
+        "valor",
+        "tipo",
+        "categoria",
+        "saldo"
+    ]
+
+    # conversões
+    df["data"] = pd.to_datetime(df["data"]).dt.strftime("%d/%m")
     df["valor"] = pd.to_numeric(df["valor"])
     df["tipo"] = df["tipo"].str.lower()
 
-    # 🔥 AGRUPAR POR DIA E TIPO (ESSENCIAL)
-    df_group = df.groupby(["data", "tipo"])["valor"].sum().reset_index()
-
-    # 🔥 PIVOTAR (separar entrada e saída)
-    df_pivot = df_group.pivot(index="data", columns="tipo", values="valor").fillna(0)
-
-    # 🔥 voltar para formato de gráfico
-    df_plot = df_pivot.reset_index().melt(
-        id_vars="data",
-        var_name="Tipo",
-        value_name="Valor"
+    # total do dia
+    df_group = (
+        df.groupby(["data", "tipo"])["valor"]
+        .sum()
+        .reset_index()
     )
 
-    # 🎨 GRÁFICO PROFISSIONAL
+    # gráfico
     chart = (
-        alt.Chart(df_plot)
-        .mark_line(point=True, interpolate="monotone")
+        alt.Chart(df_group)
+        .mark_bar(size=40)
         .encode(
-            x=alt.X("data:T", title="Data"),
-            y=alt.Y("Valor:Q", title="Valor (R$)"),
+
+            # 🔥 categórico
+            x=alt.X(
+                "data:N",
+                title="Dia"
+            ),
+
+            y=alt.Y(
+                "valor:Q",
+                title="Total (R$)"
+            ),
+
+            # 🔥 lado a lado
+            xOffset="tipo:N",
+
             color=alt.Color(
-                "Tipo:N",
+                "tipo:N",
                 scale=alt.Scale(
                     domain=["entrada", "saida"],
-                    range=["#00C853", "#D50000"]  # verde e vermelho
-                ),
-                legend=alt.Legend(title="Tipo")
+                    range=["#00C853", "#D50000"]
+                )
             ),
+
             tooltip=[
-                alt.Tooltip("data:T", title="Data"),
-                alt.Tooltip("Tipo:N", title="Tipo"),
-                alt.Tooltip("Valor:Q", title="Valor")
+                alt.Tooltip("data:N", title="Dia"),
+                alt.Tooltip("tipo:N", title="Tipo"),
+                alt.Tooltip("valor:Q", title="Total")
             ]
         )
         .properties(height=400)
         .interactive()
     )
 
-    st.subheader("📊 Fluxo de Caixa (Entradas vs Saídas)")
-    st.altair_chart(chart, use_container_width=True)
+    st.subheader("📊 Entradas vs Saídas")
 
+    st.altair_chart(chart, use_container_width=True)
 
 def grafico_pizza():
     usuario_atual = get_usuario_id()
