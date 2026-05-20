@@ -82,6 +82,24 @@ def eh_consulta(formatado):
     return any(p in formatado for p in comandos_consulta)
 
 
+def eh_movimentacao_rapida(texto):
+
+    palavras = texto.split()
+
+    tem_numero = False
+    tem_texto = False
+
+    for palavra in palavras:
+
+        # detecta número
+        if re.match(r'^\d+[,.]?\d*$', palavra):
+            tem_numero = True
+        else:
+            tem_texto = True
+
+    return tem_numero and tem_texto
+
+
 def processar_movimentacao(formatado):
     # 🔍 valor (suporte completo: 2.500, 3 mil, tres mil)
 
@@ -154,6 +172,48 @@ def processar_movimentacao(formatado):
     # 💾 salvar no banco
     get_dados(operacao, valor, categoria)
 
+def processar_movimentacao_rapida(texto):
+
+    import re
+
+    palavras_ignoradas = [
+        "reais",
+        "real",
+        "r$"
+    ]
+
+    categoria = []
+    valor = None
+
+    for palavra in texto.split():
+
+        palavra = palavra.lower()
+
+        if palavra in palavras_ignoradas:
+            continue
+
+        # número
+        if re.match(r'^\d+[,.]?\d*$', palavra):
+            valor = float(palavra.replace(",", "."))
+        else:
+            categoria.append(palavra)
+
+    if not valor:
+        st.warning("Valor não encontrado")
+        return
+
+    categoria_final = " ".join(categoria)
+    operacao = "entrada"
+
+    
+    st.write(f"Valor: {valor}")
+    st.write(f"Operação: {operacao}")
+    st.write(f"Categoria: {categoria_final}")
+
+    get_dados(operacao, valor, categoria_final)
+
+    
+
 def interpretar_comando(formatado):
 
 
@@ -196,9 +256,6 @@ def interpretar_comando(formatado):
     # 🔍 debug (te ajuda a ver no mobile)
     # st.write("Recebido:", formatado)
 
-    if not any(cmd in formatado for cmd in comandos_validos):
-        st.warning(f"Comando não reconhecido")
-        return
 
     # 👉 1. Verifica se é consulta
     if eh_consulta(formatado):
@@ -210,7 +267,16 @@ def interpretar_comando(formatado):
         grafico_entrada_saida()
         grafico_pizza()
         return
+    
+    # 👉 NOVA LÓGICA
+    if eh_movimentacao_rapida(formatado):
+        processar_movimentacao_rapida(formatado)
+        return
 
+    if not any(cmd in formatado for cmd in comandos_validos):
+        st.warning(f"Comando não reconhecido")
+        return
+    
     # 👉 2. Caso contrário, trata como movimentação
     processar_movimentacao(formatado)
 
