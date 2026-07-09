@@ -16,10 +16,10 @@ VALUES (%s, %s, %s, %s, %s, %s);
 '''
 
 SELECT_COLUMN_SALDO = """
-SELECT saldo 
-FROM extrato 
+SELECT saldo
+FROM extrato
 WHERE usuario_id = %s
-ORDER BY id DESC 
+ORDER BY id DESC
 LIMIT 1
 """
 
@@ -28,7 +28,32 @@ VAZIO_DADOS_EXTRATO = '''SELECT COUNT(*) FROM extrato;
 
 LISTAR_TODOS = """
 SELECT id, usuario_id, data, valor, tipo, categoria, saldo
-FROM extrato 
+FROM extrato
 WHERE usuario_id = %s
 ORDER BY id ASC;
+"""
+
+# --- Editar / excluir lançamentos (sempre restrito ao usuario_id do dono) ---
+
+SELECIONAR_EXTRATO_POR_ID = """
+SELECT id, usuario_id, data, valor, tipo, categoria, saldo
+FROM extrato
+WHERE id = %s AND usuario_id = %s;
+"""
+
+ATUALIZAR_EXTRATO_VALOR_CATEGORIA = """
+UPDATE extrato
+SET valor = %s, categoria = %s
+WHERE id = %s AND usuario_id = %s;
+"""
+
+ATUALIZAR_EXTRATO_SALDO = """
+UPDATE extrato
+SET saldo = %s
+WHERE id = %s;
+"""
+
+EXCLUIR_EXTRATO = """
+DELETE FROM extrato
+WHERE id = %s AND usuario_id = %s;
 """

@@ -6,4 +6,4 @@ class Usuario:
     id: int
     usuario: str
     senha: str
-    trocar_senha: int
+    trocar_senha: bool

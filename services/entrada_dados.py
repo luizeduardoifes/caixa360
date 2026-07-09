@@ -1,46 +1,46 @@
 import datetime
+
 import streamlit as st
+
 from services.auth import get_usuario_id
-from services.tratamento_comandos import *
 from models.caixa360 import Caixa360
 from repo.caixa360_repo import inserir_extrato, obter_saldo_atual
 
+# Antes este arquivo fazia "import datetime" (o módulo) mas chamava
+# datetime.now() (que só existe na classe datetime.datetime). Isso só não
+# quebrava porque "from services.tratamento_comandos import *" era importado
+# depois e reexportava o nome "datetime" da classe, sobrescrevendo o módulo
+# — um import circular escondido (tratamento_comandos importa get_dados
+# daqui, e este arquivo importava tudo de lá). Removido o import circular e
+# corrigido para datetime.datetime.now() explicitamente.
 
-def get_dados(operacao, valor, categoria):
+
+def get_dados(operacao: str, valor: float, categoria: str):
+    """Registra uma entrada ou saída, sempre a partir do saldo mais atual do usuário."""
+    usuario_id = get_usuario_id()
+    saldo_anterior = obter_saldo_atual(usuario_id)
 
     if operacao == "entrada":
-        user = get_usuario_id()
-        saldo = obter_saldo_atual(user) + valor
-        data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        usuario_id = get_usuario_id()
-
-        dados = Caixa360(
-            id=0,
-            usuario_id = usuario_id,
-            data=data,
-            valor=valor,
-            tipo=operacao,
-            categoria=categoria,
-            saldo=saldo
-        )
-
-        inserir_extrato(dados)
-        st.success("Entrada registrada com sucesso!")
-
+        novo_saldo = saldo_anterior + valor
     elif operacao == "saida":
-        user = get_usuario_id()
-        saldo = obter_saldo_atual(user) - valor
-        data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        novo_saldo = saldo_anterior - valor
+    else:
+        st.error("Operação inválida.")
+        return
 
-        dados = Caixa360(
-            id=0,
-            usuario_id = get_usuario_id(),
-            data=data,
-            valor=valor,
-            tipo=operacao,
-            categoria=categoria,
-            saldo=saldo
-        )
+    dados = Caixa360(
+        id=0,
+        usuario_id=usuario_id,
+        data=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        valor=valor,
+        tipo=operacao,
+        categoria=categoria,
+        saldo=novo_saldo,
+    )
 
-        inserir_extrato(dados)
+    inserir_extrato(dados)
+
+    if operacao == "entrada":
+        st.success("Entrada registrada com sucesso!")
+    else:
         st.success("Saída registrada com sucesso!")

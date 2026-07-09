@@ -1,8 +1,12 @@
 streamlit
 pandas
 numpy
-moviepy
-faster-whisper
 bcrypt
 psycopg2-binary
 altair
+
+# Removidas (não há nenhuma referência a elas em nenhum arquivo do projeto,
+# aparentam ser sobra de algum experimento não integrado):
+#   moviepy
+#   faster-whisper
+# Se você planeja uma feature de comando por voz, adicione de volta.

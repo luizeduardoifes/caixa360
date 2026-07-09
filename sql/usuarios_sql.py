@@ -8,13 +8,13 @@ CREATE TABLE IF NOT EXISTS usuarios (
 '''
 
 INSERT_USUARIO = '''
-INSERT INTO usuarios (usuario, senha, trocar_senha) 
+INSERT INTO usuarios (usuario, senha, trocar_senha)
 VALUES (%s, %s, %s)
 '''
 
 UPDATE_SENHA = '''
-UPDATE usuarios 
-SET senha = %s, trocar_senha = FALSE 
+UPDATE usuarios
+SET senha = %s, trocar_senha = FALSE
 WHERE id = %s
 '''
 

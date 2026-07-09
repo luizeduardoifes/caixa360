@@ -1,85 +1,65 @@
 import unicodedata
 import re
-from datetime import *
+
 import streamlit as st
-from repo.caixa360_repo import *
+
+from repo.caixa360_repo import banco_esta_vazio
 from services.consultar_extrato import consultar_extrato, grafico_entrada_saida, grafico_pizza
 from services.entrada_dados import get_dados
+from services.editar_excluir import (
+    eh_edicao,
+    eh_exclusao,
+    processar_edicao,
+    processar_exclusao,
+)
+
+COMANDOS_GRAFICO = [
+    "grafico", "grafico do caixa", "grafico de entradas e saidas", "grafico de movimentacao",
+    "grafico de extrato", "mostrar grafico", "ver grafico", "consultar grafico",
+    "analise grafica", "analisa grafica", "relatorio grafico"
+]
+
+COMANDOS_CONSULTA = [
+    "saldo", "ver saldo", "consultar saldo", "mostrar saldo", "saldo do caixa",
+    "quanto tenho", "quanto tem no caixa", "quanto ha", "valor em caixa",
+    "total em caixa", "dinheiro em caixa", "quanto dinheiro tem",
+    "quanto dinheiro eu tenho", "me diga o saldo", "informe o saldo",
+    "ver valor", "consultar valor",
+    "extrato", "ver extrato", "consultar extrato", "mostrar extrato",
+    "extrato do caixa", "ver movimentacao", "consultar movimentacao",
+    "mostrar movimentacao", "movimentacao do caixa", "historico", "ver historico",
+    "consultar historico", "mostrar historico", "historico do caixa",
+    "analisar", "analisa", "analise", "analisar caixa", "analise do caixa",
+    "analisar movimentacao", "analisar extrato", "resumo", "resumo do caixa",
+    "resumo financeiro", "visao geral", "relatorio", "relatorio do caixa",
+    "como esta o caixa", "como esta meu saldo", "como esta o saldo",
+    "me mostra o caixa", "quero ver o caixa", "me mostra o extrato",
+    "quero ver o extrato", "me mostra as movimentacoes", "o que foi registrado",
+    "quais foram os lancamentos", "ver registros", "consultar registros",
+]
+
+COMANDOS_VALIDOS = COMANDOS_CONSULTA + COMANDOS_GRAFICO + [
+    "abrir caixa", "fechar caixa", "gastar", "gastei", "gastou",
+    "registrar venda", "cancelar venda", "recebi", "recebeu", "receber",
+    "inserir", "inseri", "inserido", "inserir dinheiro", "inserir valor",
+    "adicionar", "adicionei", "adicionar dinheiro", "adicionar valor",
+    "retirar", "retirei", "retirado", "retirar dinheiro", "retirar valor",
+    "descontar", "desconto", "descontou", "aplicar desconto",
+    "entrada", "entrada de dinheiro", "entrada no caixa",
+    "saida", "saida de dinheiro",
+    # Editar / excluir
+    "excluir", "deletar", "apagar", "remover",
+    "editar", "alterar", "corrigir", "atualizar",
+]
+
 
 def eh_consulta_grafico(formatado):
-    comandos_grafico = [
-        "grafico","grafico do caixa","grafico de entradas e saidas","grafico de movimentacao",
-        "grafico de extrato","mostrar grafico","ver grafico","consultar grafico",
-        "analise grafica","analisa grafica","relatorio grafico"
-    ]
-
-    return any(p in formatado for p in comandos_grafico)
+    return any(p in formatado for p in COMANDOS_GRAFICO)
 
 
 def eh_consulta(formatado):
-    comandos_consulta = [
-        "saldo",
-        "ver saldo",
-        "consultar saldo",
-        "mostrar saldo",
-        "saldo do caixa",
-        "quanto tenho",
-        "quanto tem no caixa",
-        "quanto ha",
-        "valor em caixa",
-        "total em caixa",
-        "dinheiro em caixa",
-        "quanto dinheiro tem",
-        "quanto dinheiro eu tenho",
-        "me diga o saldo",
-        "informe o saldo",
-        "ver valor",
-        "consultar valor",
+    return any(p in formatado for p in COMANDOS_CONSULTA)
 
-        "extrato",
-        "ver extrato",
-        "consultar extrato",
-        "mostrar extrato",
-        "extrato do caixa",
-        "ver movimentacao",
-        "consultar movimentacao",
-        "mostrar movimentacao",
-        "movimentacao do caixa",
-        "historico",
-        "ver historico",
-        "consultar historico",
-        "mostrar historico",
-        "historico do caixa",
-
-        "analisar",
-        "analisa",
-        "analise",
-        "analisar caixa",
-        "analise do caixa",
-        "analisar movimentacao",
-        "analisar extrato",
-        "resumo",
-        "resumo do caixa",
-        "resumo financeiro",
-        "visao geral",
-        "relatorio",
-        "relatorio do caixa",
-
-        "como esta o caixa",
-        "como esta meu saldo",
-        "como esta o saldo",
-        "me mostra o caixa",
-        "quero ver o caixa",
-        "me mostra o extrato",
-        "quero ver o extrato",
-        "me mostra as movimentacoes",
-        "o que foi registrado",
-        "quais foram os lancamentos",
-        "ver registros",
-        "consultar registros",
-    ]
-
-    return any(p in formatado for p in comandos_consulta)
 
 def validacao(tipo_operacao, valor_operacao, categoria_operacao):
     erro = []
@@ -105,40 +85,24 @@ def validacao(tipo_operacao, valor_operacao, categoria_operacao):
 
 
 def eh_movimentacao_rapida(texto):
-
     palavras = texto.split()
 
-    if len(palavras) == 2:
-        
+    if len(palavras) != 2:
+        return False
 
-        tem_numero = False
-        tem_texto = False
+    tem_numero = any(re.match(r'^\d+[,.]?\d*$', p) for p in palavras)
+    tem_texto = any(not re.match(r'^\d+[,.]?\d*$', p) for p in palavras)
 
-        for palavra in palavras:
-
-            # detecta número
-            if re.match(r'^\d+[,.]?\d*$', palavra):
-                tem_numero = True
-            else:
-                tem_texto = True
-
-        return tem_numero and tem_texto
-    return False
+    return tem_numero and tem_texto
 
 
 def processar_movimentacao(formatado):
-    # 🔍 valor (suporte completo: 2.500, 3 mil, tres mil)
-
     valor = None
 
-    # 1. pega "3 mil", "10 mil"
     match_mil = re.search(r"(\d+)\s*mil", formatado)
-
     if match_mil:
         valor = int(match_mil.group(1)) * 1000
-
     else:
-        # 2. pega "tres mil"
         numeros_formatado = {
             "um": 1, "uma": 1, "dois": 2, "duas": 2, "tres": 3, "três": 3,
             "quatro": 4, "cinco": 5, "seis": 6, "sete": 7, "oito": 8, "nove": 9,
@@ -146,37 +110,29 @@ def processar_movimentacao(formatado):
         }
 
         palavras = formatado.split()
-
         for i, palavra in enumerate(palavras):
             if palavra in numeros_formatado:
                 if i + 1 < len(palavras) and palavras[i + 1] == "mil":
                     valor = numeros_formatado[palavra] * 1000
                     break
 
-        # 3. fallback para número normal (2.500,50 etc)
         if valor is None:
             valor_match = re.search(r"\d+(?:\.\d{3})*(?:,\d+)?", formatado)
-
             if valor_match:
-                valor_str = valor_match.group()
-                valor_str = valor_str.replace(".", "").replace(",", ".")
+                valor_str = valor_match.group().replace(".", "").replace(",", ".")
                 valor = float(valor_str)
 
-    # 🔍 operação
-    entrada_palavras = ["adicionei","inseri","inserir","adicionar","depositar","colocar","coloquei","recebi","entrada"]
-    saida_palavras = ["gastou","gastar","retirei","gastei","retirar","pagar","paguei","saída","tirei","saida"]
+    entrada_palavras = ["adicionei", "inseri", "inserir", "adicionar", "depositar", "colocar", "coloquei", "recebi", "entrada"]
+    saida_palavras = ["gastou", "gastar", "retirei", "gastei", "retirar", "pagar", "paguei", "saída", "tirei", "saida"]
 
     operacao = None
-
     if any(p in formatado for p in entrada_palavras):
         operacao = "entrada"
     elif any(p in formatado for p in saida_palavras):
         operacao = "saida"
 
-    # 🔍 categoria
     palavras = formatado.split()
     categoria = None
-
     for chave in ["de", "com", "no"]:
         if chave in palavras:
             idx = palavras.index(chave)
@@ -186,37 +142,24 @@ def processar_movimentacao(formatado):
     if categoria is None:
         categoria = "geral"
 
-    # 🧪 debug
-    st.write(f"Valor: {valor}")
-    st.write(f"Operação: {operacao}")
-    st.write(f"Categoria: {categoria}")
-
-    # ✅ validação
     if not validacao(operacao, valor, categoria):
         return
 
-    # 💾 salvar no banco
     get_dados(operacao, valor, categoria)
 
-def processar_movimentacao_rapida(texto):
 
-    palavras_ignoradas = [
-        "reais",
-        "real",
-        "r$"
-    ]
+def processar_movimentacao_rapida(texto):
+    palavras_ignoradas = ["reais", "real", "r$"]
 
     categoria = []
     valor = None
 
     for palavra in texto.split():
-
         palavra = palavra.lower()
 
         if palavra in palavras_ignoradas:
             continue
 
-        # número
         if re.match(r'^\d+[,.]?\d*$', palavra):
             valor = float(palavra.replace(",", "."))
         else:
@@ -229,24 +172,14 @@ def processar_movimentacao_rapida(texto):
     categoria_final = " ".join(categoria)
     operacao = "entrada"
 
-    
-    st.write(f"Valor: {valor}")
-    st.write(f"Operação: {operacao}")
-    st.write(f"Categoria: {categoria_final}")
-
     get_dados(operacao, valor, categoria_final)
 
-    
 
 def interpretar_comando(formatado):
-
-
-    # 🔥 normaliza (resolve problema de mobile, acento, etc)
     def normalizar(texto):
         texto = texto.lower().strip()
         texto = unicodedata.normalize("NFD", texto)
-        texto = texto.encode("ascii", "ignore").decode("utf-8")
-        return texto
+        return texto.encode("ascii", "ignore").decode("utf-8")
 
     if not formatado:
         st.warning("Digite um comando antes de enviar.")
@@ -254,58 +187,33 @@ def interpretar_comando(formatado):
 
     formatado = normalizar(formatado)
 
+    # Exclusão/edição são checadas ANTES do atalho de "movimentação rápida":
+    # um comando de 2 palavras como "excluir 5" tem número + texto e seria
+    # confundido com um depósito de R$5 se checado depois.
+    if eh_exclusao(formatado):
+        processar_exclusao(formatado)
+        return
+
+    if eh_edicao(formatado):
+        processar_edicao(formatado)
+        return
+
+    if eh_consulta(formatado):
+        consultar_extrato()
+        return
+
+    if eh_consulta_grafico(formatado):
+        st.write("Dashboard")
+        grafico_entrada_saida()
+        grafico_pizza()
+        return
+
     if eh_movimentacao_rapida(formatado):
         processar_movimentacao_rapida(formatado)
         return
-    
- 
-    else:
-        comandos_validos = [
-            "abrir caixa","fechar caixa","saldo","ver saldo","consultar saldo","mostrar saldo","saldo do caixa","quanto tenho",
-            "quanto tem no caixa","quanto ha","valor em caixa","total em caixa","dinheiro em caixa","quanto dinheiro tem",
-            "quanto dinheiro eu tenho","me diga o saldo","informe o saldo","ver valor","consultar valor",
-            "extrato","ver extrato","consultar extrato","mostrar extrato","extrato do caixa","ver movimentacao","consultar movimentacao",
-            "mostrar movimentacao","movimentacao do caixa","historico","ver historico","consultar historico","mostrar historico","historico do caixa",
-            "analisar","analisa","analise","analisar caixa","analise do caixa",
-            "analisar movimentacao","analisar extrato","resumo","resumo do caixa","resumo financeiro",
-            "visao geral","relatorio","relatorio do caixa","como esta o caixa",
-            "como esta meu saldo","como esta o saldo","me mostra o caixa","quero ver o caixa","me mostra o extrato","quero ver o extrato",
-            "me mostra as movimentacoes","o que foi registrado","quais foram os lancamentos","ver registros",
-            "consultar registros","gastar","gastei","gastou",
-            "registrar venda","cancelar venda","recebi","recebeu","receber", 
-            "inserir","inseri","inserido","inserir dinheiro","inserir valor",
-            "adicionar","adicionei","adicionar dinheiro","adicionar valor",
-            "retirar","retirei","retirado","retirar dinheiro","retirar valor",
-            "descontar","desconto","descontou","aplicar desconto",
-            "entrada","entrada de dinheiro","entrada no caixa",
-            "saida","saida de dinheiro","grafico","grafico do caixa","grafico de entradas e saidas","grafico de movimentacao",
-            "grafico de extrato","mostrar grafico","ver grafico","consultar grafico",
-            "analise grafica","analisa grafica","relatorio grafico"
-        ]
 
-        # 🔍 debug (te ajuda a ver no mobile)
-        # st.write("Recebido:", formatado)
+    if not any(cmd in formatado for cmd in COMANDOS_VALIDOS):
+        st.warning("Comando não reconhecido")
+        return
 
-
-        # 👉 1. Verifica se é consulta
-        if eh_consulta(formatado):
-            consultar_extrato()
-            return
-
-        if eh_consulta_grafico(formatado):
-            st.write("Dashboard")
-            grafico_entrada_saida()
-            grafico_pizza()
-            return
-        
-        # 👉 NOVA LÓGICA
-        
-
-        if not any(cmd in formatado for cmd in comandos_validos):
-            st.warning(f"Comando não reconhecido")
-            return
-        
-        # 👉 2. Caso contrário, trata como movimentação
-        processar_movimentacao(formatado)
-
-
+    processar_movimentacao(formatado)
