@@ -133,7 +133,7 @@ def processar_movimentacao(formatado):
 
     palavras = formatado.split()
     categoria = None
-    for chave in ["de", "com", "no"]:
+    for chave in ["de", "com", "no", "na", "para", "em", "do", "da", "sobre", "sobre o", "sobre a", "sobre os", "sobre as","ao", "ao", "aos", "às", "à", "ào", "àos","para o", "para a", "para os", "para as"]:
         if chave in palavras:
             idx = palavras.index(chave)
             if idx + 1 < len(palavras):

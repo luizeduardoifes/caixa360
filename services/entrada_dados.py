@@ -5,6 +5,7 @@ import streamlit as st
 from services.auth import get_usuario_id
 from models.caixa360 import Caixa360
 from repo.caixa360_repo import inserir_extrato, obter_saldo_atual
+from services.exibir_resultado import mostrar_resultado
 
 # Antes este arquivo fazia "import datetime" (o módulo) mas chamava
 # datetime.now() (que só existe na classe datetime.datetime). Isso só não
@@ -41,6 +42,9 @@ def get_dados(operacao: str, valor: float, categoria: str):
     inserir_extrato(dados)
 
     if operacao == "entrada":
+        mostrar_resultado(operacao, valor, categoria,saldo_anterior,novo_saldo)
         st.success("Entrada registrada com sucesso!")
-    else:
+    
+    if operacao == "saida":
+        mostrar_resultado(operacao, valor, categoria,saldo_anterior,novo_saldo)
         st.success("Saída registrada com sucesso!")
